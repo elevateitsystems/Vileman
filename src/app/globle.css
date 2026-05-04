@@ -1,0 +1,227 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-futura: var(--font-futura-pt);
+  --font-nickainley: var(--font-nickainley);
+  --font-phosphate: var(--font-phosphate);
+  --font-crushine: var(--font-crushine);
+  
+  /* Original Design Colors */
+  --color-brand-primary: #2e4857;
+  --color-brand-secondary: #fe688b;
+  --color-brand-tertiary: #d43a79;
+  --color-brand-link: #fd725d;
+  --color-brand-font: #2e4857;
+  --color-brand-font-dark: #112727;
+  --color-brand-gradient-start: #fe688b;
+  --color-brand-gradient-stop: #69c1c3;
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.product-hero-wave::after {
+  position: absolute;
+  content: "";
+  width: 101%;
+  height: 8vw;
+  min-height: 82px;
+  left: -1px;
+  right: 0;
+  bottom: -30px;
+  z-index: 3;
+  pointer-events: none;
+  background-image: url("/img/misc/talas.svg");
+  background-size: cover;
+  background-position: right;
+  background-repeat: no-repeat;
+  transform: scaleX(-1);
+}
+
+.portfolio-heading {
+  font-size: 60px;
+}
+
+.ld-pf-card {
+  border-radius: 4px;
+}
+
+.ld-pf-card,
+.ld-pf-card * {
+  border-radius: inherit;
+}
+
+.ld-pf-card img {
+  transition: transform 0.3s linear, filter 0.3s linear;
+}
+
+.main-footer {
+  background-image: url("/img/misc/doodles1.png");
+  background-position: center;
+  background-size: cover;
+  font-weight: 400;
+}
+
+@media (max-width: 767px) {
+  .product-hero-wave::after {
+    height: 18vw;
+    min-height: 72px;
+    bottom: -20px;
+  }
+
+  .portfolio-heading {
+    font-size: 42px;
+  }
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-white text-brand-font font-futura;
+    font-size: 18px;
+    line-height: 1.8333em;
+  }
+  html {
+    @apply antialiased;
+  }
+
+  h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
+    @apply font-futura font-bold text-black leading-[1em];
+  }
+
+  h1, .h1 { font-size: 68px; }
+  h2, .h2 { font-size: 50px; }
+  h3, .h3 { font-size: 40px; }
+  h4, .h4 { font-size: 25px; }
+  h5, .h5 { font-size: 21px; }
+  h6, .h6 { font-size: 18px; }
+
+  @media (max-width: 1199px) {
+    h1, .h1 { font-size: 52px; }
+    h2, .h2 { font-size: 42px; }
+    h3, .h3 { font-size: 32px; }
+  }
+
+  @media (max-width: 991px) {
+    h1, .h1 { font-size: 48px; }
+    h2, .h2 { font-size: 40px; }
+    h3, .h3 { font-size: 28px; }
+  }
+
+  @media (max-width: 767px) {
+    h1, .h1 { font-size: 42px; }
+    h2, .h2 { font-size: 34px; }
+    h3, .h3 { font-size: 26px; }
+  }
+}

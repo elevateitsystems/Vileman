@@ -1,0 +1,275 @@
+.bg-image.home {
+
+}
+
+.bg-image.home-carousel-bg {
+
+}
+/* temp */
+@media screen and (min-width: 1200px) {
+    .white-nav header .mainbar ul > li > a > .link-txt > span.txt {
+        color: black;
+    }
+    .white-nav header .mainbar-wrap.is-stuck ul li a span.txt,
+    .white-nav header .mainbar ul.nav-item-children > li > a > .link-txt > span.txt {
+        color: black;
+    }
+
+    .white-nav header .mainbar-wrap.is-stuck ul li a span.txt:hover{
+        color: #d87093;
+    }
+
+    .white-nav header .mainbar ul>li>a>.link-txt>span.txt:hover{
+        color: #735c92; 
+    }   /* text hover color */
+
+
+    .bg-image.home-carousel-bg {
+        background-color: white;
+        background-position: top center !important;
+        background-size: cover !important;
+    }
+}
+@media screen and (min-width: 768px) and (max-width: 1199px) {
+    .vc_row.fullheight.d-flex.flex-wrap.pb-50.pt-50.pt-md-0.bg-image.bg-rounded-bottom,
+    .vc_row.fullheight.flex-wrap.d-flex {
+        background-size: cover;
+        min-height: 58vh;
+    }
+}
+
+@media screen and (min-width: 1200px) and (max-width: 1350px){
+    .vc_row.fullheight.d-flex.flex-wrap.pb-50.pt-50.pt-md-0.bg-image.bg-rounded-bottom,
+    .vc_row.fullheight.flex-wrap.d-flex {
+        min-height: 650px;
+        height: 650px;
+    }
+}
+
+@media screen and (min-width: 1351px) and (max-width: 1500px){
+    .vc_row.fullheight.d-flex.flex-wrap.pb-50.pt-50.pt-md-0.bg-image.bg-rounded-bottom,
+    .vc_row.fullheight.flex-wrap.d-flex {
+        min-height: 750px;
+        height: 750px;
+    }
+}
+
+@media screen and (min-width: 1501px) and (max-width: 1900px){
+    .vc_row.fullheight.d-flex.flex-wrap.pb-50.pt-50.pt-md-0.bg-image.bg-rounded-bottom,
+    .vc_row.fullheight.flex-wrap.d-flex {
+        min-height: 850px;
+        height: 850px;
+    }
+}
+
+@media screen and (min-width: 1901px) and (max-width: 2000px){
+    .vc_row.fullheight.d-flex.flex-wrap.pb-50.pt-50.pt-md-0.bg-image.bg-rounded-bottom,
+    .vc_row.fullheight.flex-wrap.d-flex {
+        min-height: 970px;
+        height: 970px;
+    }
+}
+
+@media screen and (min-width: 2001px){
+    .vc_row.fullheight.d-flex.flex-wrap.pb-50.pt-50.pt-md-0.bg-image.bg-rounded-bottom,
+    .vc_row.fullheight.flex-wrap.d-flex {
+        min-height: 84vh;
+        height: 84vh;
+    }
+}
+
+.bg-image.home-carousel-bg .container-fluid > a {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+/* TABLET */
+/* ENG */
+.bg-image.home-carousel-bg:first-child.english,
+.bg-image.home.english {
+    background-image: url(../img/home/eng-yolo-banner-tablet.jpg);
+}
+
+/* HU */
+.bg-image.home-carousel-bg:first-child.hungarian,
+.bg-image.home.hungarian {
+    background-image: url(../img/hu_main.png);
+}
+.bg-image.home-carousel-bg:nth-child(2).hungarian {
+    background-image: url(../img/hu_main.png);
+}
+
+
+
+
+
+/* RS  */
+.bg-image.home-carousel-bg:first-child.serbian,
+.bg-image.home.serbian {
+    background-image: url(../img/rs_main.png);
+}
+.bg-image.home-carousel-bg:nth-child(2).serbian {
+    background-image: url(../img/rs_main.png);
+}
+
+
+
+
+.bg-image.home h1,
+.bg-image.home p {
+    color: var(--color-secondary) !important;
+}
+
+.bg-image.home h1,
+.bg-image.home p,
+.bg-image.home .btn {
+    visibility: hidden;
+    opacity: 0;
+}
+
+@media screen and (min-width: 1200px) {
+    .bg-image.home {
+    }
+
+
+    /* DESKTOP  */
+
+    /* EN  */
+    .bg-image.home-carousel-bg:first-child.english,
+    .bg-image.home.english {
+        background-image: url(../img/home/eu.html\ baner.png);
+    }
+
+    /* HU  */
+    .bg-image.home-carousel-bg:first-child.hungarian,
+    .bg-image.home.hungarian {
+        background-image: url(../img/hu_main.png);
+    }
+    .bg-image.home-carousel-bg:nth-child(2).hungarian {
+        background-image: url(../img/hu_main.png);
+    }
+
+
+    /* RS  */
+    .bg-image.home-carousel-bg:first-child.serbian,
+    .bg-image.home.serbian {
+        background-image: url(../img/rs_main.png);
+    }
+    .bg-image.home-carousel-bg:nth-child(2).serbian {
+        background-image: url(../img/rs_main.png);
+    }
+
+
+}
+
+@media screen and (min-width: 768px) {
+    .bg-image.home {
+        background-position: bottom left 30%;
+    }
+}
+
+@media (max-width: 767px) {
+    .bg-image.home {
+    }
+
+    /* MOBILE  */
+
+    /* EN  */
+    .bg-image.home-carousel-bg:first-child.english,
+    .bg-image.home.english {
+        background-image: url(../img/home/banner-yolo-eng-mobile.jpg);
+    }
+
+    /* HU  */
+    .bg-image.home-carousel-bg:first-child.hungarian,
+    .bg-image.home.hungarian {
+        background-image: url(../img/hu_main.png);
+    }
+    .bg-image.home-carousel-bg:nth-child(2).hungarian {
+        background-image: url(../img/hu_main.png);
+    }
+
+    .bg-image.home-carousel-bg {
+        background-position: bottom center;
+    }
+
+   
+    /* RS  */
+    .bg-image.home-carousel-bg:first-child.serbian,
+    .bg-image.home.serbian {
+        background-image: url(../img/rs_main.png);
+    }
+    .bg-image.home-carousel-bg:nth-child(2).serbian {
+        background-image: url(../img/rs_main.png);
+    }
+
+
+}
+
+@media (max-width: 600px){
+   
+
+    /* HU  */
+    .bg-image.home-carousel-bg:first-child.hungarian,
+    .bg-image.home.hungarian {
+        background-image: url(../img/hu_main_mobile.png);
+    }
+    
+    .bg-image.home-carousel-bg:nth-child(2).hungarian {
+        background-image: url(../img/hu_main_mobile.png);
+    }
+    
+    .bg-image.home-carousel-bg {
+        background-position: bottom center;
+    }
+
+    
+    
+
+    /* RS  */
+    .bg-image.home-carousel-bg:first-child.serbian,
+    .bg-image.home.serbian {
+        background-image: url(../img/rs_main_mobile.png);
+    }
+    
+    .bg-image.home-carousel-bg:nth-child(2).serbian {
+        background-image: url(../img/rs_main_mobile.png);
+    }
+    
+}
+
+@media (max-width: 500px) {
+  
+    
+    
+    /* HU  */
+    .bg-image.home-carousel-bg:first-child.hungarian,
+    .bg-image.home.hungarian {
+        background-image: url(../img/hu_main_mobile1.png);
+    }
+    
+    .bg-image.home-carousel-bg:nth-child(2).hungarian {
+        background-image: url(../img/hu_main_mobile1.png);
+    }
+    
+    .bg-image.home-carousel-bg {
+        background-position: bottom center;
+    }
+
+   
+    
+    /* RS  */
+    .bg-image.home-carousel-bg:first-child.serbian,
+    .bg-image.home.serbian {
+        background-image: url(../img/rs_main_mobile1.png);
+    }
+    
+    .bg-image.home-carousel-bg:nth-child(2).serbian {
+        background-image: url(../img/rs_main_mobile1.png);
+    }
+    
+
+}
