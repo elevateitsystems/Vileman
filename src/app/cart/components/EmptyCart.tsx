@@ -20,7 +20,7 @@ export function EmptyCart() {
         <p className="mb-10 text-gray-500">Looks like you haven't added anything to your cart yet.</p>
         <Link 
           href="/products" 
-          className="inline-flex h-14 items-center justify-center rounded-full bg-[#2e4857] px-10 text-[16px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-black"
+          className="inline-flex h-14 items-center justify-center rounded-lg bg-[#2e4857] px-10 text-[16px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-black"
         >
           Start Shopping
         </Link>

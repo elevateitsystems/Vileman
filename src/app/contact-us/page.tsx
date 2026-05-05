@@ -35,17 +35,17 @@ export default function ContactUs() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Your name</Label>
-                  <Input id="name" placeholder="Your name" className="rounded-full px-6 h-12" required />
+                  <Input id="name" placeholder="Your name" className="rounded-lg px-6 h-12" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" placeholder="Email Address" className="rounded-full px-6 h-12" required />
+                  <Input id="email" type="email" placeholder="Email Address" className="rounded-lg px-6 h-12" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="message">Message</Label>
-                  <Textarea id="message" placeholder="Message" className="rounded-3xl px-6 py-4 min-h-[150px]" required />
+                  <Textarea id="message" placeholder="Message" className="rounded-lg px-6 py-4 min-h-[150px]" required />
                 </div>
-                <Button type="submit" className="w-full h-12 rounded-full bg-pink-500 hover:bg-pink-600 text-lg uppercase font-semibold">
+                <Button type="submit" className="w-full h-12 rounded-lg bg-pink-500 hover:bg-pink-600 text-lg uppercase font-semibold">
                   Send
                 </Button>
               </form>
@@ -64,13 +64,13 @@ export default function ContactUs() {
               </a>
             </div>
             <div className="flex justify-center lg:justify-start gap-6 pt-4">
-              <a href="https://www.facebook.com/profile.php?id=61583126521191" target="_blank" rel="noopener noreferrer" className="p-4 rounded-full bg-white shadow-md hover:bg-pink-500 hover:text-white transition-all transform hover:-translate-y-1">
+              <a href="https://www.facebook.com/profile.php?id=61583126521191" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-white shadow-md hover:bg-pink-500 hover:text-white transition-all transform hover:-translate-y-1">
                 <Facebook className="h-8 w-8" />
               </a>
-              <a href="https://www.instagram.com/martasdekoviertel" target="_blank" rel="noopener noreferrer" className="p-4 rounded-full bg-white shadow-md hover:bg-pink-500 hover:text-white transition-all transform hover:-translate-y-1">
+              <a href="https://www.instagram.com/martasdekoviertel" target="_blank" rel="noopener noreferrer" className="p-4 rounded-lg bg-white shadow-md hover:bg-pink-500 hover:text-white transition-all transform hover:-translate-y-1">
                 <Instagram className="h-8 w-8" />
               </a>
-              <a href="#" className="p-4 rounded-full bg-white shadow-md hover:bg-pink-500 hover:text-white transition-all transform hover:-translate-y-1">
+              <a href="#" className="p-4 rounded-lg bg-white shadow-md hover:bg-pink-500 hover:text-white transition-all transform hover:-translate-y-1">
                 <Youtube className="h-8 w-8" />
               </a>
             </div>

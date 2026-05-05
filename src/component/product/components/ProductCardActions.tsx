@@ -26,12 +26,12 @@ export function ProductCardActions({ product, className = "" }: ProductCardActio
 
   return (
     <div className={`mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100 pt-8 relative z-10 ${className}`}>
-      <button className="flex-1 w-full h-12 rounded-full bg-[#2e4857] px-10 text-[14px] font-bold uppercase tracking-widest text-white transition-all hover:bg-black">
+      <button className="flex-1 w-full h-12 rounded-lg bg-[#2e4857] px-10 text-[14px] font-bold uppercase tracking-widest text-white transition-all hover:bg-black">
         Order
       </button>
       <button
         onClick={handleAddToCart}
-        className={`flex-1 w-full sm:w-auto h-12 flex items-center justify-center gap-2 rounded-full border-2 border-[#2e4857] px-8 text-[14px] font-bold uppercase tracking-widest transition-all ${
+        className={`flex-1 w-full sm:w-auto h-12 flex items-center justify-center gap-2 rounded-lg border-2 border-[#2e4857] px-8 text-[14px] font-bold uppercase tracking-widest transition-all ${
           isAdded
             ? "bg-green-500 border-green-500 text-white"
             : "text-[#2e4857] hover:bg-[#2e4857] hover:text-white"

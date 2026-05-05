@@ -27,7 +27,7 @@ export function ProductCardVertical({ product, href }: ProductCardVerticalProps)
   };
 
   return (
-    <div className="fancy-box-classes group relative flex flex-col overflow-hidden rounded-[15px] bg-white shadow-[0_30px_50px_rgba(0,0,0,0.05)] transition-shadow duration-[450ms] ease-[cubic-bezier(0.32,0.98,0.37,1)] hover:shadow-[0_30px_50px_rgba(0,0,0,0.07)]">
+    <div className="fancy-box-classes group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-[0_30px_50px_rgba(0,0,0,0.05)] transition-shadow duration-[450ms] ease-[cubic-bezier(0.32,0.98,0.37,1)] hover:shadow-[0_30px_50px_rgba(0,0,0,0.07)]">
       <Link href={href} className="block">
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
@@ -56,7 +56,7 @@ export function ProductCardVertical({ product, href }: ProductCardVerticalProps)
       <div className="p-[0_25px_1.5em_25px] mt-auto">
         <button
           onClick={handleAddToCart}
-          className={`flex w-full h-12 items-center justify-center gap-2 rounded-full border-2 border-[#2e4857] px-6 text-[14px] font-bold uppercase tracking-widest transition-all ${
+          className={`flex w-full h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#2e4857] px-6 text-[14px] font-bold uppercase tracking-widest transition-all ${
             isAdded
               ? "bg-green-500 border-green-500 text-white"
               : "text-[#2e4857] hover:bg-[#2e4857] hover:text-white"

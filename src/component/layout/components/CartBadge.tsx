@@ -21,7 +21,7 @@ export function CartBadge() {
         <ShoppingBag size={24} strokeWidth={1.5} />
       </div>
       {totalItems > 0 && (
-        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#2e4857] text-[10px] font-bold text-white shadow-sm transition-transform group-hover:scale-110">
+        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-md bg-[#2e4857] text-[10px] font-bold text-white shadow-sm transition-transform group-hover:scale-110">
           {totalItems}
         </span>
       )}
