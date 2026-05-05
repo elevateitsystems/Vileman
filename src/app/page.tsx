@@ -2,36 +2,43 @@ import ProductBox from "@/component/product/ProductBox";
 import SectionHero from "@/component/layout/SectionHero";
 import Image from "next/image";
 import Link from "next/link";
+import { categories } from "@/lib/products";
 
 export default function Home() {
+  // Select some featured products from categories
+  const mugs = categories.find(c => c.slug === "mugs")?.items?.[0];
+  const cloths = categories.find(c => c.slug === "cloth-everyday")?.items?.[0];
+  const shirts = categories.find(c => c.slug === "shirts")?.items?.[0];
+  const other = categories.find(c => c.slug === "other")?.items?.[0];
+
   const products = [
     {
-      href: "/products/mugs",
-      imageSrc: "/img/build/pics/index/index_mug1.png",
-      title: "Build your mug",
-      price: "30",
-      description: "Build your custom mug.",
+      href: "/products/mugs/classic-mug",
+      imageSrc: mugs?.image || "/img/build/pics/prod_mugs/p-mug-31.png",
+      name: mugs?.name || "Classic Mug",
+      price: mugs?.price || 12.99,
+      description: mugs?.shortDescription || "A beautiful classic mug.",
     },
     {
-      href: "/products/cloth-menu",
-      imageSrc: "/img/build/pics/index/index_cloth1.png",
-      title: "Build your kitchen tablecloth",
-      price: "30",
-      description: "Pick your favorite tablecloth.",
+      href: "/products/cloth-everyday/kitchen-cloth-1",
+      imageSrc: cloths?.image || "/img/build/pics/prod_cloths/ready/p-cloth-1.png",
+      name: cloths?.name || "Kitchen Cloth #1",
+      price: cloths?.price || 20.99,
+      description: cloths?.shortDescription || "Premium cotton kitchen cloth.",
     },
     {
-      href: "/products/shirts",
-      imageSrc: "/img/build/pics/index/index_shirt.png",
-      title: "Build your custom shirt",
-      price: "30",
-      description: "Design your custom shirt.",
+      href: "/products/shirts/custom-cotton-shirt",
+      imageSrc: shirts?.image || "/img/build/pics/prod_shirts/p-shirt-1.png",
+      name: shirts?.name || "Custom Cotton Shirt",
+      price: shirts?.price || 24.99,
+      description: shirts?.shortDescription || "Design your custom shirt.",
     },
     {
-      href: "/products/other",
-      imageSrc: "/img/build/pics/index/index_bloons.png",
-      title: "Gift balloons",
-      price: "50",
-      description: "Gift balloon with a variety of small treats & crafts",
+      href: "/products/other/gift-tissue-box",
+      imageSrc: other?.image || "/img/build/pics/misc/tissue-1.png",
+      name: other?.name || "Gift Tissue Box",
+      price: other?.price || 9.99,
+      description: other?.shortDescription || "Decorative tissue box.",
     },
   ];
 

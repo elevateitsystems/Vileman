@@ -5,8 +5,13 @@ import Image from "next/image"
 import { useState } from "react"
 import { Menu, X, ChevronDown } from "lucide-react"
 
+import { categories } from "@/lib/products"
+
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
+
+  // Filter to show top-level categories and handle subcategories
+  const mainCategories = categories.filter(cat => !cat.slug.startsWith('cloth-') || cat.slug === 'cloth-menu');
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-gray-100">
@@ -41,23 +46,39 @@ const Header = () => {
               </button>
               
               {/* Megamenu/Dropdown */}
-              <div className="absolute left-0 top-full pt-4 hidden group-hover:block w-64">
+              <div className="absolute left-0 top-full pt-4 hidden group-hover:block">
                 <div className="w-[232px] rounded-[5px] bg-white py-[1.0625em] text-left shadow-[0_16px_50px_rgba(0,0,0,0.07)]">
-                  <div className="relative group/sub">
-                    <button className="flex w-full items-center justify-between px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]">
-                      Kitchen Cloths Menu <ChevronDown className="h-4 w-4 -rotate-90 opacity-40" />
-                    </button>
-                    <div className="absolute left-full top-0 ml-1 pt-0 hidden group-hover/sub:block w-64">
-                      <div className="w-[232px] rounded-[5px] bg-white py-[1.0625em] shadow-[0_16px_50px_rgba(0,0,0,0.07)]">
-                        <Link href="/products/cloth-everyday" className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]">Kitchen Cloths Everyday</Link>
-                        <Link href="/products/cloth-easter" className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]">Kitchen Cloths Easter</Link>
-                        <Link href="/products/cloth-christmas" className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]">Kitchen Cloths Christmas</Link>
-                      </div>
+                  {mainCategories.map((cat) => (
+                    <div key={cat.slug} className="relative group/sub">
+                      {cat.subcategory ? (
+                        <>
+                          <button className="flex w-full items-center justify-between px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]">
+                            {cat.name} <ChevronDown className="h-4 w-4 -rotate-90 opacity-40" />
+                          </button>
+                          <div className="absolute left-full top-0 ml-1 pt-0 hidden group-hover/sub:block w-64">
+                            <div className="w-[232px] rounded-[5px] bg-white py-[1.0625em] shadow-[0_16px_50px_rgba(0,0,0,0.07)]">
+                              {cat.subcategory.map((sub) => (
+                                <Link 
+                                  key={sub.slug}
+                                  href={`/products/${sub.slug}`} 
+                                  className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]"
+                                >
+                                  {sub.name}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <Link 
+                          href={`/products/${cat.slug}`} 
+                          className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]"
+                        >
+                          {cat.name}
+                        </Link>
+                      )}
                     </div>
-                  </div>
-                  <Link href="/products/mugs" className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]">Custom Mugs</Link>
-                  <Link href="/products/shirts" className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]">Custom shirts</Link>
-                  <Link href="/products/other" className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]">Other gifts</Link>
+                  ))}
                 </div>
               </div>
             </div>
@@ -87,12 +108,16 @@ const Header = () => {
             <Link href="/" className="text-lg font-semibold" onClick={() => setIsOpen(false)}>Home page</Link>
             <div className="text-lg font-semibold text-gray-400">Our products</div>
             <div className="pl-4 flex flex-col gap-4 border-l-2 border-gray-100">
-              <Link href="/products/cloth-everyday" className="text-gray-600" onClick={() => setIsOpen(false)}>Kitchen Cloths Everyday</Link>
-              <Link href="/products/cloth-easter" className="text-gray-600" onClick={() => setIsOpen(false)}>Kitchen Cloths Easter</Link>
-              <Link href="/products/cloth-christmas" className="text-gray-600" onClick={() => setIsOpen(false)}>Kitchen Cloths Christmas</Link>
-              <Link href="/products/mugs" className="text-gray-600" onClick={() => setIsOpen(false)}>Custom Mugs</Link>
-              <Link href="/products/shirts" className="text-gray-600" onClick={() => setIsOpen(false)}>Custom shirts</Link>
-              <Link href="/products/other" className="text-gray-600" onClick={() => setIsOpen(false)}>Other gifts</Link>
+              {categories.map((cat) => (
+                <Link 
+                  key={cat.slug} 
+                  href={`/products/${cat.slug}`} 
+                  className="text-gray-600" 
+                  onClick={() => setIsOpen(false)}
+                >
+                  {cat.name}
+                </Link>
+              ))}
             </div>
             <Link href="/contact-us" className="text-lg font-semibold" onClick={() => setIsOpen(false)}>Contact us</Link>
           </nav>

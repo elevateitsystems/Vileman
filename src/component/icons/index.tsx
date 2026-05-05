@@ -44,3 +44,44 @@ export const Youtube = (props: LucideProps) => (
     <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" />
   </svg>
 )
+
+export const Visa = (props: LucideProps) => (
+  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 10l1 4h1l1-4" />
+    <path d="M12 10l1 4h1" />
+    <path d="M17 10l-1.5 4h1.5l1.5-4" />
+    <rect width="20" height="14" x="2" y="5" rx="2" />
+  </svg>
+)
+
+export const Mastercard = (props: LucideProps) => (
+  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="12" r="3" />
+    <circle cx="15" cy="12" r="3" />
+    <rect width="20" height="14" x="2" y="5" rx="2" />
+  </svg>
+)
+
+export const Maestro = (props: LucideProps) => (
+  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="12" r="3" />
+    <circle cx="15" cy="12" r="3" />
+    <path d="M12 10v4" />
+    <rect width="20" height="14" x="2" y="5" rx="2" />
+  </svg>
+)
+
+export const Jcb = (props: LucideProps) => (
+  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 10h2v4H6zM11 10h2v4h-2zM16 10h2v4h-2z" />
+    <rect width="20" height="14" x="2" y="5" rx="2" />
+  </svg>
+)
+
+export const Discover = (props: LucideProps) => (
+  <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 9v6M9 12h6" />
+    <rect width="20" height="14" x="2" y="5" rx="2" />
+  </svg>
+)

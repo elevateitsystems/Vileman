@@ -31,8 +31,8 @@ const SectionHero = ({
       <div className="container mx-auto px-4 relative z-10">
         <h1
           className={cn(
-            "mb-4 text-3xl font-bold leading-tight md:text-4xl lg:text-[50px]",
-            bgImage ? "script text-white" : "text-black",
+            "mb-4 text-[42px] font-bold leading-tight md:text-[60px]",
+            bgImage ? "portfolio-heading uppercase text-white" : "text-black",
           )}
         >
           {title}
@@ -50,12 +50,12 @@ const SectionHero = ({
       </div>
 
       {roundedBottom && (
-        <div className="absolute bottom-0 left-0 w-full h-32 md:h-48 lg:h-64 pointer-events-none z-20">
+        <div className="absolute -bottom-[30px] left-[-1px] right-0 w-[101%] h-[8vw] min-h-[82px] pointer-events-none z-20">
           <Image
             src="/img/misc/talas.svg"
             alt=""
             fill
-            className="object-cover object-right"
+            className="object-cover object-right transform scale-x-[-1]"
             priority
           />
         </div>

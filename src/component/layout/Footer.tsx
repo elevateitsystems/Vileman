@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Mail } from "lucide-react";
-import { Facebook, Instagram, Youtube } from "@/component/icons";
+import { Facebook, Instagram, Youtube, Visa, Mastercard, Maestro, Jcb, Discover } from "../icons";
 
 const Footer = () => {
   return (
@@ -101,17 +101,22 @@ const Footer = () => {
                 <h4 className="mt-10 mb-4 text-[15px] font-normal text-white">
                   Payment methods
                 </h4>
-                <div className="flex flex-wrap justify-center gap-2 text-[11px] font-bold uppercase tracking-wider text-brand-primary md:justify-start">
-                  {["Visa", "MasterCard", "Maestro", "JCB", "Discover"].map(
-                    (card) => (
-                      <span
-                        key={card}
-                        className="rounded border border-white bg-white px-3 py-2 shadow-sm"
-                      >
-                        {card}
-                      </span>
-                    ),
-                  )}
+                <div className="flex flex-wrap justify-center gap-4 text-brand-primary md:justify-start">
+                  <div className="rounded border border-white bg-white p-2 shadow-sm">
+                    <Visa className="h-6 w-10" />
+                  </div>
+                  <div className="rounded border border-white bg-white p-2 shadow-sm">
+                    <Mastercard className="h-6 w-10" />
+                  </div>
+                  <div className="rounded border border-white bg-white p-2 shadow-sm">
+                    <Maestro className="h-6 w-10" />
+                  </div>
+                  <div className="rounded border border-white bg-white p-2 shadow-sm">
+                    <Jcb className="h-6 w-10" />
+                  </div>
+                  <div className="rounded border border-white bg-white p-2 shadow-sm">
+                    <Discover className="h-6 w-10" />
+                  </div>
                 </div>
               </div>
 
