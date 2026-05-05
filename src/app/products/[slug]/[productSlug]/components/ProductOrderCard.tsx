@@ -1,12 +1,25 @@
+"use client";
+
 import { ProductInfo } from "@/component/product/ProductInfo";
 import { Product } from "@/lib/products";
-import { FileText, Maximize, Printer, Truck } from "lucide-react";
+import { FileText, Maximize, Printer, Truck, ShoppingCart } from "lucide-react";
+import { useCartStore } from "@/hooks/useCartStore";
+import { useState } from "react";
 
 interface ProductOrderCardProps {
   product: Product;
 }
 
 export function ProductOrderCard({ product }: ProductOrderCardProps) {
+  const { addItem } = useCartStore();
+  const [isAdded, setIsAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    addItem(product, 1);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
+
   return (
     <aside className="h-fit sticky top-24 rounded-[20px] bg-white p-8 shadow-[0_30px_80px_rgba(0,0,0,0.06)] md:p-10">
       <div className="mb-10 flex items-start justify-between gap-4">
@@ -37,9 +50,28 @@ export function ProductOrderCard({ product }: ProductOrderCardProps) {
         />
       </div>
 
-      <button className="mt-14 h-14 w-full rounded-full bg-[#2e4857] text-[16px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-black">
-        ORDER
-      </button>
+      <div className="mt-14 flex flex-col gap-4">
+        <button className="h-14 w-full rounded-full bg-[#2e4857] text-[16px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-black">
+          ORDER
+        </button>
+        <button
+          onClick={handleAddToCart}
+          className={`flex h-14 w-full items-center justify-center gap-3 rounded-full border-2 border-[#2e4857] text-[16px] font-bold uppercase tracking-[0.2em] transition-all ${
+            isAdded
+              ? "bg-green-500 border-green-500 text-white"
+              : "text-[#2e4857] hover:bg-[#2e4857] hover:text-white"
+          }`}
+        >
+          {isAdded ? (
+            "ADDED!"
+          ) : (
+            <>
+              <ShoppingCart className="h-5 w-5" />
+              ADD TO CART
+            </>
+          )}
+        </button>
+      </div>
     </aside>
   );
 }

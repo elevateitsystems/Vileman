@@ -3,16 +3,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { Menu, X, ChevronDown, ShoppingBag } from "lucide-react";
-
+import { Menu, X } from "lucide-react";
 import { categories } from "@/lib/products";
+import { DesktopNav } from "./components/DesktopNav";
+import { MobileNav } from "./components/MobileNav";
+import { CartBadge } from "./components/CartBadge";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Filter to show top-level categories and handle subcategories
   const mainCategories = categories.filter(
-    (cat) => !cat.slug.startsWith("cloth-") || cat.slug === "cloth-menu",
+    (cat) => !cat.slug.startsWith("cloth-") || cat.slug === "cloth-menu"
   );
 
   return (
@@ -34,65 +36,7 @@ const Header = () => {
           </div>
 
           {/* Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7">
-            <Link
-              href="/"
-              className="text-[18px] font-normal tracking-[0.05em] text-black hover:text-[#735c92] transition-colors"
-            >
-              Home page
-            </Link>
-
-            <div className="relative group">
-              <button className="flex items-center gap-1 text-[18px] font-normal tracking-[0.05em] text-black hover:text-[#735c92] transition-colors">
-                Our products <ChevronDown className="h-4 w-4 opacity-50" />
-              </button>
-
-              {/* Megamenu/Dropdown */}
-              <div className="absolute left-0 top-full pt-4 hidden group-hover:block">
-                <div className="w-[232px] rounded-[5px] bg-white py-[1.0625em] text-left shadow-[0_16px_50px_rgba(0,0,0,0.07)]">
-                  {mainCategories.map((cat) => (
-                    <div key={cat.slug} className="relative group/sub">
-                      {cat.subcategory ? (
-                        <>
-                          <button className="flex w-full items-center justify-between px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]">
-                            {cat.name}{" "}
-                            <ChevronDown className="h-4 w-4 -rotate-90 opacity-40" />
-                          </button>
-                          <div className="absolute left-full top-0 ml-1 pt-0 hidden group-hover/sub:block w-64">
-                            <div className="w-[232px] rounded-[5px] bg-white py-[1.0625em] shadow-[0_16px_50px_rgba(0,0,0,0.07)]">
-                              {cat.subcategory.map((sub) => (
-                                <Link
-                                  key={sub.slug}
-                                  href={`/products/${sub.slug}`}
-                                  className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]"
-                                >
-                                  {sub.name}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        <Link
-                          href={`/products/${cat.slug}`}
-                          className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]"
-                        >
-                          {cat.name}
-                        </Link>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <Link
-              href="/contact-us"
-              className="text-[18px] font-normal tracking-[0.05em] text-black hover:text-[#735c92] transition-colors"
-            >
-              Contact us
-            </Link>
-          </nav>
+          <DesktopNav categories={mainCategories} />
 
           {/* Right Actions */}
           <div className="flex-1 flex items-center justify-end gap-5">
@@ -103,12 +47,7 @@ const Header = () => {
               Login
             </Link>
 
-            <button className="relative p-2 text-black hover:text-[#735c92] transition-colors">
-              <ShoppingBag className="h-6 w-6" />
-              <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-[#fe688b] text-[10px] font-bold text-white">
-                0
-              </span>
-            </button>
+            <CartBadge />
 
             {/* Mobile Trigger */}
             <button
@@ -126,49 +65,11 @@ const Header = () => {
       </div>
 
       {/* Mobile Menu */}
-      {isOpen && (
-        <div className="lg:hidden border-t border-gray-50 bg-white p-6 shadow-xl animate-in slide-in-from-top duration-300">
-          <nav className="flex flex-col gap-5">
-            <Link
-              href="/"
-              className="text-lg font-semibold"
-              onClick={() => setIsOpen(false)}
-            >
-              Home page
-            </Link>
-            <div className="text-lg font-semibold text-gray-400">
-              Our products
-            </div>
-            <div className="pl-4 flex flex-col gap-4 border-l-2 border-gray-100">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  href={`/products/${cat.slug}`}
-                  className="text-gray-600"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {cat.name}
-                </Link>
-              ))}
-            </div>
-            <Link
-              href="/contact-us"
-              className="text-lg font-semibold"
-              onClick={() => setIsOpen(false)}
-            >
-              Contact us
-            </Link>
-            <div className="h-px bg-gray-100 my-2" />
-            <Link
-              href="/login"
-              className="text-lg font-semibold text-brand-secondary"
-              onClick={() => setIsOpen(false)}
-            >
-              Login
-            </Link>
-          </nav>
-        </div>
-      )}
+      <MobileNav 
+        categories={categories} 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)} 
+      />
     </header>
   );
 };

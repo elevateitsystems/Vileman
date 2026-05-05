@@ -34,6 +34,7 @@ export function ProductGrid({
             print={item.print}
             paper={item.paper}
             delivery={item.delivery}
+            slug={item.slug}
           />
         ))}
       </div>
