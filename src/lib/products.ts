@@ -18,6 +18,14 @@ export interface SubCategory {
   name: string;
   slug: string;
   image: string;
+  description?: string;
+  price?: number;
+  shortDescription?: string;
+  color?: string;
+  dimensions?: string;
+  print?: string;
+  paper?: string;
+  delivery?: string;
 }
 
 export interface Category {
@@ -69,16 +77,25 @@ export const categories: Category[] = [
         name: "Kitchen Cloths Everyday",
         slug: "cloth-everyday",
         image: clothReady[0],
+        description: "Premium cotton kitchen cloths for everyday use.",
+        price: 20.99,
+        delivery: "5-9 days",
       },
       {
         name: "Kitchen Cloths Easter",
         slug: "cloth-easter",
         image: easter[0],
+        description: "Festive Easter themed kitchen cloths.",
+        price: 20.99,
+        delivery: "5-9 days",
       },
       {
         name: "Kitchen Cloths Christmas",
         slug: "cloth-christmas",
         image: clothReady[2],
+        description: "Holiday themed kitchen cloths for your Christmas kitchen.",
+        price: 20.99,
+        delivery: "5-9 days",
       },
     ],
   },
@@ -294,5 +311,11 @@ export const categories: Category[] = [
 export function getProductBySlug(slug: string) {
   return categories.find((category) => category.slug === slug);
 }
+
+// All possible slugs for the [slug] route (categories and products)
+export const allSlugs = [
+  ...categories.map((c) => ({ slug: c.slug })),
+  ...categories.flatMap((c) => (c.items || []).map((i) => ({ slug: i.slug }))),
+];
 
 export const products = categories.flatMap((c) => c.items || []);

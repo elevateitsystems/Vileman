@@ -1,13 +1,10 @@
 import ProductBox from "@/component/product/ProductBox";
-import { getProductBySlug, products } from "@/lib/products";
-import { FileText, Maximize, Printer, Truck } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
+import { getProductBySlug, allSlugs } from "@/lib/products";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
 export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
+  return allSlugs;
 }
 
 export default async function ProductPage({
@@ -22,7 +19,8 @@ export default async function ProductPage({
     notFound();
   }
 
-  const cards = product?.subcategory ?? product.items;
+  const isSubcategoryPage = !!product.subcategory;
+  const cards = product.subcategory ?? product.items;
 
   return (
     <div className="product-page flex min-h-screen flex-col">
@@ -51,11 +49,15 @@ export default async function ProductPage({
             {cards.map((item) => (
               <ProductBox
                 key={`${item.name}-${item.image}`}
-                href={`/products/${slug}/${item.slug}`}
+                href={
+                  isSubcategoryPage
+                    ? `/products/${item.slug}`
+                    : `/products/${slug}/${item.slug}`
+                }
                 imageSrc={item.image}
                 name={item.name}
-                price={item?.price}
-                description={item.description}
+                price={item.price ?? 0}
+                description={item.description ?? ""}
                 shortDescription={item.shortDescription}
                 color={item.color}
                 layout="horizontal"
