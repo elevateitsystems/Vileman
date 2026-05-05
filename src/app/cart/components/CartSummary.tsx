@@ -43,7 +43,7 @@ export function CartSummary({ totalPrice }: CartSummaryProps) {
       </div>
 
       <button 
-        onClick={openOrderModal}
+        onClick={() => openOrderModal()}
         className="group mt-12 relative flex h-12 w-full items-center justify-center overflow-hidden rounded-lg bg-[#2e4857] text-[12px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-black"
       >
         <span className="relative z-10 flex items-center gap-3">
