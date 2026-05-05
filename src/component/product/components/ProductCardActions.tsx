@@ -11,7 +11,7 @@ interface ProductCardActionsProps {
 }
 
 export function ProductCardActions({ product, className = "" }: ProductCardActionsProps) {
-  const { addItem } = useCartStore();
+  const { addItem, openOrderModal } = useCartStore();
   const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -24,9 +24,19 @@ export function ProductCardActions({ product, className = "" }: ProductCardActio
     setTimeout(() => setIsAdded(false), 2000);
   };
 
+  const handleOrder = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    openOrderModal(product);
+  };
+
   return (
     <div className={`mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-gray-100 pt-8 relative z-10 ${className}`}>
-      <button className="flex-1 w-full h-12 rounded-lg bg-[#2e4857] px-10 text-[14px] font-bold uppercase tracking-widest text-white transition-all hover:bg-black">
+      <button 
+        onClick={handleOrder}
+        className="flex-1 w-full h-12 rounded-lg bg-[#2e4857] px-10 text-[14px] font-bold uppercase tracking-widest text-white transition-all hover:bg-black"
+      >
         Order
       </button>
       <button

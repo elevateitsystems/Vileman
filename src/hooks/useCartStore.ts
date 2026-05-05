@@ -14,12 +14,27 @@ interface CartState {
   clearCart: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
+  isOrderModalOpen: boolean;
+  singleOrderProduct: Product | null;
+  openOrderModal: (product?: Product) => void;
+  closeOrderModal: () => void;
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      isOrderModalOpen: false,
+      singleOrderProduct: null,
+
+      openOrderModal: (product) => set({ 
+        isOrderModalOpen: true,
+        singleOrderProduct: product || null 
+      }),
+      closeOrderModal: () => set({ 
+        isOrderModalOpen: false,
+        singleOrderProduct: null 
+      }),
 
       addItem: (product, quantity = 1) => {
         const currentItems = get().items;

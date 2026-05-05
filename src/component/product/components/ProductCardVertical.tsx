@@ -2,30 +2,18 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart } from "lucide-react";
-import { useCartStore } from "@/hooks/useCartStore";
-import { useState } from "react";
 import { Product } from "@/lib/products";
+import { ProductCardActions } from "./ProductCardActions";
 
 interface ProductCardVerticalProps {
   product: Product;
   href: string;
 }
 
-export function ProductCardVertical({ product, href }: ProductCardVerticalProps) {
-  const { addItem } = useCartStore();
-  const [isAdded, setIsAdded] = useState(false);
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    addItem(product, 1);
-
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
-  };
-
+export function ProductCardVertical({
+  product,
+  href,
+}: ProductCardVerticalProps) {
   return (
     <div className="fancy-box-classes group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-[0_30px_50px_rgba(0,0,0,0.05)] transition-shadow duration-[450ms] ease-[cubic-bezier(0.32,0.98,0.37,1)] hover:shadow-[0_30px_50px_rgba(0,0,0,0.07)]">
       <Link href={href} className="block">
@@ -54,23 +42,7 @@ export function ProductCardVertical({ product, href }: ProductCardVerticalProps)
         </div>
       </Link>
       <div className="p-[0_25px_1.5em_25px] mt-auto">
-        <button
-          onClick={handleAddToCart}
-          className={`flex w-full h-12 items-center justify-center gap-2 rounded-lg border-2 border-[#2e4857] px-6 text-[14px] font-bold uppercase tracking-widest transition-all ${
-            isAdded
-              ? "bg-green-500 border-green-500 text-white"
-              : "text-[#2e4857] hover:bg-[#2e4857] hover:text-white"
-          }`}
-        >
-          {isAdded ? (
-            "Added!"
-          ) : (
-            <>
-              <ShoppingCart size={16} />
-              Add to Cart
-            </>
-          )}
-        </button>
+        <ProductCardActions product={product} />
       </div>
     </div>
   );

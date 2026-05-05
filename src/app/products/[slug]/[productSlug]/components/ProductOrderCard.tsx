@@ -11,13 +11,17 @@ interface ProductOrderCardProps {
 }
 
 export function ProductOrderCard({ product }: ProductOrderCardProps) {
-  const { addItem } = useCartStore();
+  const { addItem, openOrderModal } = useCartStore();
   const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = () => {
     addItem(product, 1);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
+  };
+
+  const handleOrder = () => {
+    openOrderModal(product);
   };
 
   return (
@@ -51,7 +55,10 @@ export function ProductOrderCard({ product }: ProductOrderCardProps) {
       </div>
 
       <div className="mt-14 flex flex-col gap-4">
-        <button className="h-14 w-full rounded-lg bg-[#2e4857] text-[16px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-black">
+        <button 
+          onClick={handleOrder}
+          className="h-14 w-full rounded-lg bg-[#2e4857] text-[16px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-black"
+        >
           ORDER
         </button>
         <button
