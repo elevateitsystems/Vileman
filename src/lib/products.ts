@@ -9,9 +9,11 @@ export interface Product {
   print: string;
   paper: string;
   image: string;
+  images?: string[];
   category: string; // Explicit relation with category slug
   color?: string;
   quantity?: number;
+  status?: 'active' | 'inactive';
 }
 
 export interface SubCategory {

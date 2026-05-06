@@ -41,6 +41,12 @@ const Header = () => {
           {/* Right Actions */}
           <div className="flex-1 flex items-center justify-end gap-5">
             <Link
+              href="/admin"
+              className="hidden sm:block text-[18px] font-normal tracking-[0.05em] text-black hover:text-[#735c92] transition-colors"
+            >
+              Admin
+            </Link>
+            <Link
               href="/login"
               className="hidden sm:block text-[18px] font-normal tracking-[0.05em] text-black hover:text-[#735c92] transition-colors"
             >
