@@ -31,20 +31,20 @@ const crushine = localFont({
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Marta's Dekoviertel",
-  description: "By using our app, you can pick some of your favorite photos and display them using our products! ",
+  title: "Marta's Dekoviertel | Custom Photo Products & Decor",
+  description: "Create beautiful custom photo products and home decor. Pick your favorite photos and display them on our premium mugs, cloths, and more.",
   icons: {
     icon: "/img/build/minilogo1.png",
     shortcut: "/img/build/minilogo1.png",
   },
   openGraph: {
-    title: "YoloBook",
-    description: "By using our app, you can pick some of your favorite photos and display them using our products! ",
-    url: "https://www.yolobook.com",
+    title: "Marta's Dekoviertel | Custom Photo Products",
+    description: "Create beautiful custom photo products and home decor. Pick your favorite photos and display them on our premium mugs, cloths, and more.",
+    url: "https://martas-dekoviertel.com",
     siteName: "Marta's Dekoviertel",
     images: [
       {
-        url: "https://www.yolobook.com/assets/img/home/header-bg.jpg",
+        url: "/img/build/logo1.png",
         width: 1200,
         height: 630,
       },
@@ -54,12 +54,13 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "YoloBook",
-    description: "By using our app, you can pick some of your favorite photos and display them using our products! ",
+    title: "Marta's Dekoviertel",
+    description: "Create beautiful custom photo products and home decor.",
+    images: ["/img/build/logo1.png"],
   },
   other: {
     "google-site-verification": "fTe83cC3PLJ8BWjoWjZWD361_HG2468eQ5J6HG3ceAc",
-    "theme-color": "#3ed2a7",
+    "theme-color": "#735c92",
   },
 };
 

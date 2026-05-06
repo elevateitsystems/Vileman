@@ -29,7 +29,7 @@ const Header = () => {
                 alt="Marta's Dekoviertel"
                 width={120}
                 height={50}
-                className="w-[120px] h-auto"
+                style={{ width: "120px", height: "auto" }}
                 priority
               />
             </Link>

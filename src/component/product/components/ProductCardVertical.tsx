@@ -8,11 +8,13 @@ import { ProductCardActions } from "./ProductCardActions";
 interface ProductCardVerticalProps {
   product: Product;
   href: string;
+  priority?: boolean;
 }
 
 export function ProductCardVertical({
   product,
   href,
+  priority = false,
 }: ProductCardVerticalProps) {
   return (
     <div className="fancy-box-classes group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-[0_30px_50px_rgba(0,0,0,0.05)] transition-shadow duration-[450ms] ease-[cubic-bezier(0.32,0.98,0.37,1)] hover:shadow-[0_30px_50px_rgba(0,0,0,0.07)]">
@@ -24,6 +26,7 @@ export function ProductCardVertical({
             width={600}
             height={800}
             className="object-cover transition-transform duration-700 group-hover:scale-105"
+            priority={priority}
           />
         </div>
         <div className="p-[1.5em_25px] pb-4">

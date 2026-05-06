@@ -26,7 +26,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {products.map((product, index) => (
-            <ProductBox key={index} {...product} />
+            <ProductBox key={index} {...product} priority={index === 0} />
           ))}
         </div>
       </div>

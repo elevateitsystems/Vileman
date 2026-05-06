@@ -18,6 +18,7 @@ export interface ProductBoxProps {
   paper?: string;
   delivery?: string;
   slug?: string;
+  priority?: boolean;
 }
 
 const ProductBox = ({
@@ -34,6 +35,7 @@ const ProductBox = ({
   paper,
   delivery,
   slug,
+  priority = false,
 }: ProductBoxProps) => {
   // Construct product object for children
   const product: Product = {
@@ -52,10 +54,10 @@ const ProductBox = ({
   };
 
   if (layout === "horizontal") {
-    return <ProductCardHorizontal product={product} href={href} />;
+    return <ProductCardHorizontal product={product} href={href} priority={priority} />;
   }
 
-  return <ProductCardVertical product={product} href={href} />;
+  return <ProductCardVertical product={product} href={href} priority={priority} />;
 };
 
 export default ProductBox;
