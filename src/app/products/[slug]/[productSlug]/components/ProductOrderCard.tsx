@@ -6,12 +6,15 @@ import { FileText, Maximize, Printer, Truck, ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/hooks/useCartStore";
 import { useState } from "react";
 
+import { useRouter } from "next/navigation";
+
 interface ProductOrderCardProps {
   product: Product;
 }
 
 export function ProductOrderCard({ product }: ProductOrderCardProps) {
-  const { addItem, openOrderModal } = useCartStore();
+  const router = useRouter();
+  const { addItem, setSingleOrderProduct } = useCartStore();
   const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = () => {
@@ -21,7 +24,8 @@ export function ProductOrderCard({ product }: ProductOrderCardProps) {
   };
 
   const handleOrder = () => {
-    openOrderModal(product);
+    setSingleOrderProduct(product);
+    router.push("/checkout");
   };
 
   return (

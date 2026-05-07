@@ -52,8 +52,8 @@ export function CartItemList({
                       <h3 className="text-[18px] font-bold text-black group-hover:text-[#2e4857] transition-colors">
                         {item.name}
                       </h3>
-                      <p className="text-[14px] text-gray-400 uppercase tracking-widest">
-                        {item.color || "Standard Variant"}
+                      <p className="text-[14px] text-gray-400 uppercase tracking-widest line-clamp-1">
+                        {item.shortDescription}
                       </p>
                       <div className="pt-2">
                         <button

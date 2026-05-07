@@ -3,12 +3,20 @@
 import { ArrowLeft } from "lucide-react";
 import { useCartStore } from "@/hooks/useCartStore";
 
+import { useRouter } from "next/navigation";
+
 interface CartSummaryProps {
   totalPrice: number;
 }
 
 export function CartSummary({ totalPrice }: CartSummaryProps) {
-  const { openOrderModal } = useCartStore();
+  const router = useRouter();
+  const { setSingleOrderProduct } = useCartStore();
+
+  const handleCheckout = () => {
+    setSingleOrderProduct(null);
+    router.push("/checkout");
+  };
 
   return (
     <div className="rounded-lg bg-white p-10 text-black shadow-[0_40px_80px_rgba(0,0,0,0.06)] border border-gray-100">
@@ -43,7 +51,7 @@ export function CartSummary({ totalPrice }: CartSummaryProps) {
       </div>
 
       <button 
-        onClick={() => openOrderModal()}
+        onClick={handleCheckout}
         className="group mt-12 relative flex h-12 w-full items-center justify-center overflow-hidden rounded-lg bg-[#2e4857] text-[12px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-black"
       >
         <span className="relative z-10 flex items-center gap-3">

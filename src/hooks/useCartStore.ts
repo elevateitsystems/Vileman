@@ -2,39 +2,66 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { Product } from "@/lib/products";
 
-export interface CartItem extends Product {
+export interface CartItem {
+  slug: string;
+  name: string;
+  shortDescription: string;
+  image: string;
+  price: number;
   cartQuantity: number;
+}
+
+export interface CustomerInfo {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
 }
 
 interface CartState {
   items: CartItem[];
+  customerInfo: CustomerInfo;
   addItem: (product: Product, quantity?: number) => void;
   removeItem: (productSlug: string) => void;
   updateQuantity: (productSlug: string, quantity: number) => void;
+  setCustomerInfo: (info: CustomerInfo) => void;
   clearCart: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
-  isOrderModalOpen: boolean;
-  singleOrderProduct: Product | null;
-  openOrderModal: (product?: Product) => void;
-  closeOrderModal: () => void;
+  singleOrderProduct: CartItem | null;
+  setSingleOrderProduct: (product: Product | null) => void;
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      isOrderModalOpen: false,
+      customerInfo: {
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+      },
       singleOrderProduct: null,
 
-      openOrderModal: (product) => set({ 
-        isOrderModalOpen: true,
-        singleOrderProduct: product || null 
-      }),
-      closeOrderModal: () => set({ 
-        isOrderModalOpen: false,
-        singleOrderProduct: null 
-      }),
+      setSingleOrderProduct: (product) => {
+        if (!product) {
+          set({ singleOrderProduct: null });
+          return;
+        }
+
+        const cartItem: CartItem = {
+          slug: product.slug,
+          name: product.name,
+          shortDescription: product.shortDescription,
+          image: product.image,
+          price: product.price,
+          cartQuantity: 1
+        };
+        set({ singleOrderProduct: cartItem });
+      },
+
+      setCustomerInfo: (info) => set({ customerInfo: info }),
 
       addItem: (product, quantity = 1) => {
         const currentItems = get().items;
@@ -49,8 +76,16 @@ export const useCartStore = create<CartState>()(
             ),
           });
         } else {
+          const newItem: CartItem = {
+            slug: product.slug,
+            name: product.name,
+            shortDescription: product.shortDescription,
+            image: product.image,
+            price: product.price,
+            cartQuantity: quantity
+          };
           set({
-            items: [...currentItems, { ...product, cartQuantity: quantity }],
+            items: [...currentItems, newItem],
           });
         }
       },

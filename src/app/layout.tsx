@@ -2,7 +2,6 @@ import localFont from "next/font/local";
 import "./globle.css";
 import Header from "@/component/layout/Header";
 import Footer from "@/component/layout/Footer";
-import { OrderModal } from "@/component/product/components/OrderModal";
 
 const futuraPT = localFont({
   src: [
@@ -77,7 +76,6 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
-        <OrderModal />
       </body>
     </html>
   );

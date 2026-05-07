@@ -5,13 +5,16 @@ import { useCartStore } from "@/hooks/useCartStore";
 import { useState } from "react";
 import { Product } from "@/lib/products";
 
+import { useRouter } from "next/navigation";
+
 interface ProductCardActionsProps {
   product: Product;
   className?: string;
 }
 
 export function ProductCardActions({ product, className = "" }: ProductCardActionsProps) {
-  const { addItem, openOrderModal } = useCartStore();
+  const router = useRouter();
+  const { addItem, setSingleOrderProduct } = useCartStore();
   const [isAdded, setIsAdded] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -28,7 +31,8 @@ export function ProductCardActions({ product, className = "" }: ProductCardActio
     e.preventDefault();
     e.stopPropagation();
     
-    openOrderModal(product);
+    setSingleOrderProduct(product);
+    router.push("/checkout");
   };
 
   return (
