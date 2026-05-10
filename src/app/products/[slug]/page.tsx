@@ -5,6 +5,7 @@ import { fetchCategories, fetchProducts } from "@/lib/api";
 import { notFound } from "next/navigation";
 import { SectionHero } from "@/component/product/SectionHero";
 import { ProductGrid } from "./components/ProductGrid";
+import { EmptyCategory } from "./components/EmptyCategory";
 import { parseMetadata } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -86,11 +87,15 @@ export default function CategoryPage({
         priceRange={categoryData.priceRange}
       />
 
-      <ProductGrid
-        slug={slug}
-        items={items}
-        isSubcategoryPage={isSubcategoryPage}
-      />
+      {items.length > 0 ? (
+        <ProductGrid
+          slug={slug}
+          items={items}
+          isSubcategoryPage={isSubcategoryPage}
+        />
+      ) : (
+        <EmptyCategory />
+      )}
     </div>
   );
 }

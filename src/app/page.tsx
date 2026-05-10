@@ -7,6 +7,7 @@ import { FeaturedProducts } from "./components/FeaturedProducts";
 import { PhotoGrid } from "./components/PhotoGrid";
 import { Skeleton } from "@/components/ui/skeleton";
 import { parseMetadata } from "@/lib/utils";
+import placeholderImg from "@/assets/placeholder.svg";
 
 export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
@@ -29,10 +30,13 @@ export default function Home() {
           const images = p.images || [];
           const imageSrc = images.length > 0 
             ? (typeof images[0] === 'string' ? images[0] : images[0].url)
-            : (metadata.image || p.image || "");
+            : (metadata.image || p.image || placeholderImg);
           
           return {
             id: p.id,
+            _id: p._id,
+            productId: p.productId,
+            uuid: p.uuid,
             href: `/products/${categorySlug}/${p.slug}`,
             imageSrc,
             name: p.name,

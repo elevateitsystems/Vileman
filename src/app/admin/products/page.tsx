@@ -179,7 +179,7 @@ export default function ProductsPage() {
             </TableHeader>
             <TableBody>
               {filteredProducts.map((product) => {
-                const metadata = parseMetadata(product.description);
+                const { metadata } = parseMetadata(product.description);
                 const images = product.images || [];
                 const displayImage = images.length > 0 
                   ? (typeof images[0] === 'string' ? images[0] : images[0].url)

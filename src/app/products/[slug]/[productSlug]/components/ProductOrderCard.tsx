@@ -5,6 +5,7 @@ import { FileText, Maximize, Printer, ShoppingCart, Truck } from "lucide-react";
 import { useCartStore } from "@/hooks/useCartStore";
 import { useState } from "react";
 import { parseMetadata } from "@/lib/utils";
+import placeholderImg from "@/assets/placeholder.svg";
 
 import { useRouter } from "next/navigation";
 
@@ -25,7 +26,7 @@ export function ProductOrderCard({ product }: ProductOrderCardProps) {
     const cartProduct = {
       ...product,
       price: price,
-      image: product.images?.[0] || metadata.image || "/img/build/pics/prod_mugs/p-mug-31.png",
+      image: product.images?.[0] || metadata.image || product.image || placeholderImg,
       shortDescription: metadata.shortDescription || product.shortDescription
     };
     addItem(cartProduct, 1);
@@ -37,7 +38,7 @@ export function ProductOrderCard({ product }: ProductOrderCardProps) {
     const cartProduct = {
       ...product,
       price: price,
-      image: product.images?.[0] || metadata.image || "/img/build/pics/prod_mugs/p-mug-31.png",
+      image: product.images?.[0] || metadata.image || product.image || placeholderImg,
       shortDescription: metadata.shortDescription || product.shortDescription
     };
     setSingleOrderProduct(cartProduct);

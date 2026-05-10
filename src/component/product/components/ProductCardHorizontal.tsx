@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ProductCardActions } from "./ProductCardActions";
 import { Product } from "@/lib/products";
+import placeholderImg from "@/assets/placeholder.svg";
 
 interface ProductCardHorizontalProps {
   product: Product;
@@ -12,16 +14,19 @@ interface ProductCardHorizontalProps {
 }
 
 export function ProductCardHorizontal({ product, href, priority = false }: ProductCardHorizontalProps) {
+  const [imgSrc, setImgSrc] = useState(product.image || placeholderImg);
+
   return (
     <div className="group relative flex flex-col overflow-hidden sm:flex-row gap-12 rounded-lg bg-white transition-all">
       <Link href={href} className="relative overflow-hidden md:flex-1 rounded-lg">
         <Image
-          src={product.image}
+          src={imgSrc}
           alt={product.name}
           width={600}
           height={800}
           className="object-cover transition-transform duration-700 group-hover:scale-110 rounded-lg"
           priority={priority}
+          onError={() => setImgSrc(placeholderImg)}
         />
       </Link>
       <div className="flex flex-1 flex-col justify-between">

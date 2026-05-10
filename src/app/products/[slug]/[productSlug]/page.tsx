@@ -9,6 +9,7 @@ import { ProductOrderCard } from "./components/ProductOrderCard";
 import { ProductDescription } from "./components/ProductDescription";
 import { parseMetadata } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import placeholderImg from "@/assets/placeholder.svg";
 
 export default function ProductDetailPage({
   params: paramsPromise,
@@ -95,7 +96,7 @@ export default function ProductDetailPage({
           <ProductGallery 
             images={product.images && product.images.length > 0 
               ? product.images.map((img: any) => typeof img === 'string' ? img : img.url) 
-              : [product.image]} 
+              : [product.image || placeholderImg]} 
             name={product.name} 
           />
           <ProductOrderCard product={product} />

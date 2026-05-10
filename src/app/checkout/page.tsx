@@ -15,15 +15,31 @@ import {
   ArrowRight,
   Loader2,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { Visa, Mastercard, Maestro } from "@/component/icons";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { createCheckoutSession } from "@/lib/api";
+import { CountrySelect } from "@/component/checkout/CountrySelect";
+import { calculateDeliveryDays } from "@/lib/shipping";
+import placeholderImg from "@/assets/placeholder.svg";
 
-export default function CheckoutPage() {
+function CheckoutItemImage({ src, name }: { src: any; name: string }) {
+  const [imgSrc, setImgSrc] = useState(src);
+  return (
+    <Image
+      src={imgSrc}
+      alt={name}
+      fill
+      className="object-cover"
+      onError={() => setImgSrc(placeholderImg)}
+    />
+  );
+}
+
+function CheckoutContent() {
   const router = useRouter();
   const {
     items,
@@ -40,7 +56,10 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [formData, setFormData] = useState(customerInfo);
+  const [formData, setFormData] = useState({
+    ...customerInfo,
+    country: (customerInfo as any).country || "netherlands"
+  });
   const [error, setError] = useState<string | null>(null);
 
   const searchParams = useSearchParams();
@@ -108,17 +127,31 @@ export default function CheckoutPage() {
         customerEmail: formData.email,
         customerPhone: formData.phone,
         shippingCountry: (formData as any).country || "netherlands",
-        products: displayItems.map((item) => ({
-          productId: item.id,
-          quantity: item.cartQuantity,
-        })),
+        products: displayItems.map((item) => {
+          const productId = item.id || (item as any)._id || (item as any).productId || (item as any).uuid;
+          if (!productId) {
+            console.error("Missing product ID for item:", item);
+          }
+          return {
+            productId: productId || "",
+            quantity: item.cartQuantity,
+          };
+        }),
       };
+
+      // Safety check: ensure all products have an ID
+      const missingId = payload.products.some(p => !p.productId);
+      if (missingId) {
+        throw new Error("Some items in your cart are missing product IDs. Please try removing and re-adding them.");
+      }
 
       const response = await createCheckoutSession(payload);
 
       if (response && response.url) {
-        // Clear cart before redirecting so they don't come back to a full cart
-        clearCart();
+        // Clear cart ONLY if it was a cart checkout (not a direct order)
+        if (!singleOrderProduct) {
+          clearCart();
+        }
         setSingleOrderProduct(null);
         window.location.href = response.url;
       } else {
@@ -291,24 +324,30 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="text-[12px] font-bold uppercase tracking-widest text-gray-400">
-                        Shipping Address
-                      </label>
-                      <div className="relative">
-                        <MapPin
-                          className="absolute left-4 top-4 text-gray-300"
-                          size={18}
-                        />
-                        <textarea
-                          required
-                          name="address"
-                          value={formData.address}
-                          onChange={handleInputChange}
-                          rows={3}
-                          placeholder="Street, City, Postal Code, Country"
-                          className="w-full rounded-xl border border-gray-100 bg-white pl-12 pr-4 py-4 text-[15px] transition-all focus:border-[#2e4857] focus:ring-1 focus:ring-[#2e4857] outline-none resize-none"
-                        />
+                    <div className="space-y-6">
+                      <CountrySelect
+                        value={(formData as any).country}
+                        onChange={(val) => setFormData((prev) => ({ ...prev, country: val }))}
+                      />
+                      <div className="space-y-2">
+                        <label className="text-[12px] font-bold uppercase tracking-widest text-gray-400">
+                          Shipping Address
+                        </label>
+                        <div className="relative">
+                          <MapPin
+                            className="absolute left-4 top-4 text-gray-300"
+                            size={18}
+                          />
+                          <textarea
+                            required
+                            name="address"
+                            value={formData.address}
+                            onChange={handleInputChange}
+                            rows={3}
+                            placeholder="Street, City, Postal Code"
+                            className="w-full rounded-xl border border-gray-100 bg-white pl-12 pr-4 py-4 text-[15px] transition-all focus:border-[#2e4857] focus:ring-1 focus:ring-[#2e4857] outline-none resize-none"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -463,18 +502,7 @@ export default function CheckoutPage() {
                       className="flex gap-4 border-b border-gray-50 pb-6 last:border-0 last:pb-0"
                     >
                       <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-xl bg-gray-50">
-                        {item.image ? (
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-gray-200">
-                            <ShoppingBag size={32} />
-                          </div>
-                        )}
+                        <CheckoutItemImage src={item.image || placeholderImg} name={item.name} />
                         <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#181b31] text-[10px] font-bold text-white">
                           {item.cartQuantity}
                         </span>
@@ -555,7 +583,7 @@ export default function CheckoutPage() {
                   <div className="text-[12px]">
                     <p className="font-bold text-[#181b31]">Express Delivery</p>
                     <p className="text-[#797b86]">
-                      Estimated arrival: 2-4 business days
+                      Estimated arrival: {calculateDeliveryDays((formData as any).country)} business days
                     </p>
                   </div>
                 </div>
@@ -565,5 +593,16 @@ export default function CheckoutPage() {
         )}
       </div>
     </div>
+  );
+}
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-brand-primary" />
+      </div>
+    }>
+      <CheckoutContent />
+    </Suspense>
   );
 }

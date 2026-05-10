@@ -53,7 +53,7 @@ export const useCartStore = create<CartState>()(
         }
 
         const cartItem: CartItem = {
-          id: product.id || "",
+          id: product.id || product._id || product.productId || product.uuid || "",
           slug: product.slug,
           name: product.name,
           shortDescription: product.shortDescription,
@@ -75,13 +75,18 @@ export const useCartStore = create<CartState>()(
           set({
             items: currentItems.map((item) =>
               item.slug === product.slug
-                ? { ...item, cartQuantity: item.cartQuantity + quantity }
+                ? { 
+                    ...item, 
+                    cartQuantity: item.cartQuantity + quantity,
+                    // Update ID if it was missing
+                    id: item.id || product.id || product._id || product.productId || product.uuid || ""
+                  }
                 : item
             ),
           });
         } else {
           const newItem: CartItem = {
-            id: product.id || "",
+            id: product.id || product._id || product.productId || product.uuid || "",
             slug: product.slug,
             name: product.name,
             shortDescription: product.shortDescription,

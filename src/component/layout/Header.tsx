@@ -94,20 +94,30 @@ const Header = () => {
           <div className="flex-1 flex items-center justify-end gap-5">
             {isAuthenticated ? (
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-50 transition-all outline-none">
-                    {user?.avatar ? (
-                      <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-brand-primary/20">
-                        <Image src={user.avatar} alt={user.displayName} width={40} height={40} className="object-cover" />
-                      </div>
-                    ) : (
-                      <div className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white shadow-sm ${getAvatarColor()}`}>
-                        {getInitials()}
-                      </div>
-                    )}
-                    <ChevronDown className="h-4 w-4 text-gray-400" />
-                  </button>
-                </DropdownMenuTrigger>
+                <DropdownMenuTrigger
+                  render={
+                    <button className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-50 transition-all outline-none">
+                      {user?.avatar ? (
+                        <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-brand-primary/20">
+                          <Image
+                            src={user.avatar}
+                            alt={user.displayName}
+                            width={40}
+                            height={40}
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className={`h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white shadow-sm ${getAvatarColor()}`}
+                        >
+                          {getInitials()}
+                        </div>
+                      )}
+                      <ChevronDown className="h-4 w-4 text-gray-400" />
+                    </button>
+                  }
+                />
                 <DropdownMenuContent align="end" className="w-56 p-2 rounded-xl shadow-xl border-gray-100">
                   <DropdownMenuGroup>
                     <DropdownMenuLabel className="font-normal">

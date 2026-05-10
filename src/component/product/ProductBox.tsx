@@ -6,6 +6,9 @@ import { Product } from "@/lib/products";
 
 export interface ProductBoxProps {
   id?: string;
+  _id?: string;
+  productId?: string;
+  uuid?: string;
   href: string;
   imageSrc: string;
   name: string;
@@ -24,6 +27,9 @@ export interface ProductBoxProps {
 
 const ProductBox = ({
   id,
+  _id,
+  productId,
+  uuid,
   href,
   imageSrc,
   name,
@@ -41,7 +47,7 @@ const ProductBox = ({
 }: ProductBoxProps) => {
   // Construct product object for children
   const product: Product = {
-    id,
+    id: id || _id || productId || uuid,
     slug: slug || "",
     name,
     price,

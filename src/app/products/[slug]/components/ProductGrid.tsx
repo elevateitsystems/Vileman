@@ -1,5 +1,6 @@
 import ProductBox from "@/component/product/ProductBox";
 import { parseMetadata } from "@/lib/utils";
+import placeholderImg from "@/assets/placeholder.svg";
 
 interface ProductGridProps {
   slug: string;
@@ -20,12 +21,15 @@ export function ProductGrid({
           const images = item.images || [];
           const imageSrc = images.length > 0 
             ? (typeof images[0] === 'string' ? images[0] : images[0].url)
-            : (metadata.image || item.image || "");
+            : (metadata.image || item.image || placeholderImg);
           
           return (
             <ProductBox
               key={item.id || item.slug}
               id={item.id}
+              _id={item._id}
+              productId={item.productId}
+              uuid={item.uuid}
               href={
                 isSubcategoryPage
                   ? `/products/${item.slug}`

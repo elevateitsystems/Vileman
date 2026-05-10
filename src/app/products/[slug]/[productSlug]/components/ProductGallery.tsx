@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { useState } from "react";
+import placeholderImg from "@/assets/placeholder.svg";
 
 interface ProductGalleryProps {
   images: string[];
@@ -8,24 +10,33 @@ interface ProductGalleryProps {
 export function ProductGallery({ images, name }: ProductGalleryProps) {
   const displayImages = images && images.length > 0 
     ? images 
-    : ["/img/build/pics/prod_mugs/p-mug-31.png"];
+    : [placeholderImg];
 
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
       {displayImages.map((src, idx) => (
-        <div key={idx} className="overflow-hidden rounded-2xl bg-gray-50 border border-gray-100 shadow-sm transition-all hover:shadow-md">
-          <div className="relative w-full aspect-[4/5] sm:aspect-square">
-            <Image
-              src={src}
-              alt={`${name} - Image ${idx + 1}`}
-              fill
-              className="object-cover transition-transform duration-500 hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              priority={idx < 4}
-            />
-          </div>
-        </div>
+        <GalleryImage key={idx} src={src} name={name} idx={idx} />
       ))}
+    </div>
+  );
+}
+
+function GalleryImage({ src, name, idx }: { src: string; name: string; idx: number }) {
+  const [imgSrc, setImgSrc] = useState(src);
+
+  return (
+    <div className="overflow-hidden rounded-2xl transition-all">
+      <Image
+        src={imgSrc}
+        alt={`${name} - Image ${idx + 1}`}
+        width={0}
+        height={0}
+        sizes="100vw"
+        style={{ width: "100%", height: "auto" }}
+        className="rounded-2xl object-contain transition-transform duration-500 hover:scale-105"
+        priority={idx < 4}
+        onError={() => setImgSrc(placeholderImg)}
+      />
     </div>
   );
 }

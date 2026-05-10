@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Product } from "@/lib/products";
 import { ProductCardActions } from "./ProductCardActions";
+import placeholderImg from "@/assets/placeholder.svg";
 
 interface ProductCardVerticalProps {
   product: Product;
@@ -16,17 +18,20 @@ export function ProductCardVertical({
   href,
   priority = false,
 }: ProductCardVerticalProps) {
+  const [imgSrc, setImgSrc] = useState(product.image || placeholderImg);
+
   return (
     <div className="fancy-box-classes group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-[0_30px_50px_rgba(0,0,0,0.05)] transition-shadow duration-[450ms] ease-[cubic-bezier(0.32,0.98,0.37,1)] hover:shadow-[0_30px_50px_rgba(0,0,0,0.07)]">
       <Link href={href} className="block">
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
-            src={product.image}
+            src={imgSrc}
             alt={product.name}
             width={600}
             height={800}
             className="object-cover transition-transform duration-700 group-hover:scale-105"
             priority={priority}
+            onError={() => setImgSrc(placeholderImg)}
           />
         </div>
         <div className="p-[1.5em_25px] pb-4">

@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import placeholderImg from "@/assets/placeholder.svg";
 import { CartItem } from "@/hooks/useCartStore";
 
 interface CartItemListProps {
@@ -41,12 +43,7 @@ export function CartItemList({
                 <td className="p-8">
                   <div className="flex items-center gap-6">
                     <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-50 shadow-inner group-hover:scale-105 transition-transform duration-500">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover"
-                      />
+                      <CartItemImage src={item.image || placeholderImg} name={item.name} />
                     </div>
                     <div className="space-y-1">
                       <h3 className="text-[18px] font-bold text-black group-hover:text-[#2e4857] transition-colors">
@@ -109,5 +106,17 @@ export function CartItemList({
         </table>
       </div>
     </div>
+  );
+}
+function CartItemImage({ src, name }: { src: any; name: string }) {
+  const [imgSrc, setImgSrc] = useState(src);
+  return (
+    <Image
+      src={imgSrc}
+      alt={name}
+      fill
+      className="object-cover"
+      onError={() => setImgSrc(placeholderImg)}
+    />
   );
 }

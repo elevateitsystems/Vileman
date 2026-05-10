@@ -153,15 +153,17 @@ export default function CategoriesPage() {
             open={isSubCategoryModalOpen}
             onOpenChange={setIsSubCategoryModalOpen}
           >
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                className="border-brand-primary text-brand-primary hover:bg-brand-primary/5 flex items-center gap-2"
-              >
-                <Plus className="h-5 w-5" />
-                Add Subcategory
-              </Button>
-            </DialogTrigger>
+            <DialogTrigger
+              render={
+                <Button
+                  variant="outline"
+                  className="border-brand-primary text-brand-primary hover:bg-brand-primary/5 flex items-center gap-2"
+                >
+                  <Plus className="h-5 w-5" />
+                  Add Subcategory
+                </Button>
+              }
+            />
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add New Subcategory</DialogTitle>
@@ -177,12 +179,14 @@ export default function CategoriesPage() {
             open={isCategoryModalOpen}
             onOpenChange={setIsCategoryModalOpen}
           >
-            <DialogTrigger asChild>
-              <Button className="bg-brand-primary hover:bg-brand-primary/90 flex items-center gap-2">
-                <Plus className="h-5 w-5" />
-                Add Category
-              </Button>
-            </DialogTrigger>
+            <DialogTrigger
+              render={
+                <Button className="bg-brand-primary hover:bg-brand-primary/90 flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Add Category
+                </Button>
+              }
+            />
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add New Category</DialogTitle>
