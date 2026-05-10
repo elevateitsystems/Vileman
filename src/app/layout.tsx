@@ -63,6 +63,9 @@ export const metadata: Metadata = {
   },
 };
 
+import AuthSync from "@/components/AuthSync";
+import { Toaster } from "sonner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -71,6 +74,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${futuraPT.variable} ${nickainley.variable} ${phosphate.variable} ${crushine.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-futura text-[18px] leading-[1.5em]">
+        <AuthSync />
+        <Toaster richColors position="top-right" />
         <Header />
         <main className="flex-grow">
           {children}

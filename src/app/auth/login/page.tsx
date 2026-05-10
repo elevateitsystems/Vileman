@@ -1,18 +1,51 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock, Mail } from "lucide-react";
+import { Lock, Mail, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { login } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const setAuth = useAuth((state) => state.setAuth);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await login({ email, password });
+      
+      if (response.success) {
+        setAuth(response.data.user, response.data.token);
+        toast.success("Login successful!");
+        router.push("/admin");
+      } else {
+        toast.error(response.message || "Invalid credentials");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-[calc(100vh-74px)] flex items-center justify-center bg-[#f8f9fa] px-4 py-12">
       <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none overflow-hidden">
@@ -29,8 +62,8 @@ export default function LoginPage() {
             Enter your credentials to access your account
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6 px-8">
-          <div className="space-y-4">
+        <CardContent className="space-y-6 px-8 pb-12">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label
                 htmlFor="email"
@@ -44,6 +77,9 @@ export default function LoginPage() {
                   id="email"
                   placeholder="name@example.com"
                   type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 h-12 border-gray-100 focus:border-brand-primary focus:ring-brand-primary/20 transition-all rounded-xl"
                 />
               </div>
@@ -57,7 +93,7 @@ export default function LoginPage() {
                   Password
                 </Label>
                 <Link
-                  href="/forgot-password"
+                  href="/auth/forgot-password"
                   className="text-[14px] font-medium text-brand-secondary hover:underline"
                 >
                   Forgot password?
@@ -68,34 +104,29 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 h-12 border-gray-100 focus:border-brand-primary focus:ring-brand-primary/20 transition-all rounded-xl"
                 />
               </div>
             </div>
-          </div>
-          <Button className="w-full h-12 bg-brand-primary hover:bg-brand-primary/90 text-white font-bold rounded-xl transition-all shadow-lg shadow-brand-primary/20">
-            Sign In
-          </Button>
-
-          <div className="relative flex items-center gap-4 py-2">
-            <div className="h-px flex-1 bg-gray-100" />
-            <span className="text-[12px] font-bold uppercase tracking-widest text-gray-400">
-              Or continue with
-            </span>
-            <div className="h-px flex-1 bg-gray-100" />
-          </div>
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="w-full h-12 bg-brand-primary hover:bg-brand-primary/90 text-white font-bold rounded-xl transition-all shadow-lg shadow-brand-primary/20 mt-4"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Signing In...
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </Button>
+          </form>
         </CardContent>
-        <CardFooter className="flex flex-wrap items-center justify-center gap-1 border-t border-gray-50 py-6 px-8 mt-4">
-          <span className="text-[15px] text-gray-500">
-            Don&apos;t have an account?
-          </span>
-          <Link
-            href="/register"
-            className="text-[15px] font-bold text-brand-secondary hover:underline"
-          >
-            Create an account
-          </Link>
-        </CardFooter>
       </Card>
     </div>
   );

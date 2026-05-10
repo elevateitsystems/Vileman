@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
+  Users,
   Package, 
   Layers, 
   Settings, 
@@ -11,6 +12,8 @@ import {
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 const sidebarItems = [
   {
@@ -22,6 +25,11 @@ const sidebarItems = [
     name: "Categories",
     href: "/admin/categories",
     icon: Layers
+  },
+  {
+    name: "Admin Management",
+    href: "/admin/admin-management",
+    icon: Users
   },
   {
     name: "Settings",
@@ -36,11 +44,19 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const logout = useAuth((state) => state.logout);
+  const router = useRouter();
+
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await logout();
+    router.push("/auth/login");
+  };
 
   return (
     <div className="flex min-h-[calc(100vh-74px)] bg-[#f8f9fa]">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-100 flex flex-col hidden md:flex">
+      <aside className="w-76 bg-white border-r border-gray-100 flex flex-col hidden md:flex">
         <div className="p-6">
           <h2 className="text-[14px] font-bold uppercase tracking-widest text-gray-400 mb-6">
             Admin Panel
@@ -71,13 +87,13 @@ export default function AdminLayout({
         </div>
 
         <div className="mt-auto p-6 border-t border-gray-50">
-          <Link
-            href="/"
-            className="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-red-500 transition-colors"
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-red-500 transition-colors w-full text-left"
           >
             <LogOut className="h-5 w-5" />
             <span className="text-[16px]">Exit Admin</span>
-          </Link>
+          </button>
         </div>
       </aside>
 

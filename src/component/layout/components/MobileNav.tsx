@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Category } from "@/lib/products";
+import { useAuth } from "@/hooks/useAuth";
+import { LogOut } from "lucide-react";
 
 interface MobileNavProps {
   categories: Category[];
@@ -10,6 +12,7 @@ interface MobileNavProps {
 }
 
 export function MobileNav({ categories, isOpen, onClose }: MobileNavProps) {
+  const { isAuthenticated, logout } = useAuth();
   if (!isOpen) return null;
 
   return (
@@ -45,13 +48,46 @@ export function MobileNav({ categories, isOpen, onClose }: MobileNavProps) {
           Contact us
         </Link>
         <div className="h-px bg-gray-100 my-2" />
-        <Link
-          href="/login"
-          className="text-lg font-semibold text-brand-secondary"
-          onClick={onClose}
-        >
-          Login
-        </Link>
+        {isAuthenticated ? (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+              <div className="h-12 w-12 rounded-full bg-brand-primary flex items-center justify-center text-white font-bold text-lg">
+                {useAuth.getState().user?.firstName?.[0]}{useAuth.getState().user?.lastName?.[0]}
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">{useAuth.getState().user?.displayName}</p>
+                <p className="text-sm text-gray-500">{useAuth.getState().user?.email}</p>
+              </div>
+            </div>
+            {useAuth.getState().user?.role === 'admin' && (
+              <Link
+                href="/admin"
+                className="text-lg font-semibold text-gray-700"
+                onClick={onClose}
+              >
+                Admin Dashboard
+              </Link>
+            )}
+            <button
+              onClick={() => {
+                logout();
+                onClose();
+              }}
+              className="text-lg font-semibold text-red-500 text-left flex items-center gap-2"
+            >
+              <LogOut className="h-5 w-5" />
+              Logout
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/auth/login"
+            className="text-lg font-semibold text-brand-secondary"
+            onClick={onClose}
+          >
+            Admin Access
+          </Link>
+        )}
       </nav>
     </div>
   );
