@@ -1,4 +1,5 @@
 export interface Product {
+  id?: string;
   slug: string;
   name: string;
   price: number;
@@ -17,6 +18,7 @@ export interface Product {
 }
 
 export interface SubCategory {
+  id?: string;
   name: string;
   slug: string;
   image: string;

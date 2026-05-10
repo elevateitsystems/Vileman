@@ -47,7 +47,7 @@ export function ProductCardHorizontal({ product, href, priority = false }: Produ
           </p>
 
           {(product.dimensions || product.print || product.paper || product.delivery) && (
-            <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-4 pt-4">
+            <div className="mt-8 grid grid-cols-2 gap-x-12 gap-y-8 pt-6 border-t border-gray-50">
               {product.dimensions && <InfoItem label="Dimensions" value={product.dimensions} />}
               {product.print && <InfoItem label="Print" value={product.print} />}
               {product.paper && <InfoItem label="Paper" value={product.paper} />}

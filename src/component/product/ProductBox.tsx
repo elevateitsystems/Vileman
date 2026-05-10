@@ -5,6 +5,7 @@ import { ProductCardVertical } from "./components/ProductCardVertical";
 import { Product } from "@/lib/products";
 
 export interface ProductBoxProps {
+  id?: string;
   href: string;
   imageSrc: string;
   name: string;
@@ -22,6 +23,7 @@ export interface ProductBoxProps {
 }
 
 const ProductBox = ({
+  id,
   href,
   imageSrc,
   name,
@@ -39,6 +41,7 @@ const ProductBox = ({
 }: ProductBoxProps) => {
   // Construct product object for children
   const product: Product = {
+    id,
     slug: slug || "",
     name,
     price,

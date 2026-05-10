@@ -19,7 +19,9 @@ import { useState, useEffect } from "react";
 import { Visa, Mastercard, Maestro } from "@/component/icons";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+import { createCheckoutSession } from "@/lib/api";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -39,11 +41,17 @@ export default function CheckoutPage() {
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState(customerInfo);
+  const [error, setError] = useState<string | null>(null);
 
-  // Sync with store on mount
+  const searchParams = useSearchParams();
+
+  // Sync with store on mount and check for stripe redirect
   useEffect(() => {
     setMounted(true);
-  }, []);
+    if (searchParams.get("success") === "true") {
+      setStep(3);
+    }
+  }, [searchParams]);
 
   if (!mounted) return null;
 
@@ -87,23 +95,40 @@ export default function CheckoutPage() {
     e.preventDefault();
     if (step === 1) {
       setCustomerInfo(formData);
-      setStep(2);
-      window.scrollTo(0, 0);
-    } else if (step === 2) {
       handlePlaceOrder();
     }
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     setIsProcessing(true);
-    // Simulate API call
-    setTimeout(() => {
+    setError(null);
+
+    try {
+      const payload = {
+        customerEmail: formData.email,
+        customerPhone: formData.phone,
+        shippingCountry: (formData as any).country || "netherlands",
+        products: displayItems.map((item) => ({
+          productId: item.id,
+          quantity: item.cartQuantity,
+        })),
+      };
+
+      const response = await createCheckoutSession(payload);
+
+      if (response && response.url) {
+        // Clear cart before redirecting so they don't come back to a full cart
+        clearCart();
+        setSingleOrderProduct(null);
+        window.location.href = response.url;
+      } else {
+        throw new Error("No checkout URL received from the server");
+      }
+    } catch (err: any) {
+      console.error("Checkout error:", err);
+      setError(err.message || "Failed to initiate checkout. Please try again.");
       setIsProcessing(false);
-      setStep(3);
-      clearCart();
-      setSingleOrderProduct(null);
-      window.scrollTo(0, 0);
-    }, 2000);
+    }
   };
 
   return (
@@ -290,13 +315,23 @@ export default function CheckoutPage() {
 
                   <button
                     type="submit"
-                    className="group mt-12 flex h-16 w-full items-center justify-center gap-3 rounded-xl bg-[#2e4857] text-[14px] font-bold uppercase tracking-[0.2em] text-white shadow-xl shadow-[#2e4857]/10 transition-all hover:bg-black hover:shadow-black/10"
+                    disabled={isProcessing}
+                    className="group mt-12 flex h-16 w-full items-center justify-center gap-3 rounded-xl bg-[#2e4857] text-[14px] font-bold uppercase tracking-[0.2em] text-white shadow-xl shadow-[#2e4857]/10 transition-all hover:bg-black hover:shadow-black/10 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    Continue to Payment
-                    <ArrowRight
-                      size={18}
-                      className="transition-transform group-hover:translate-x-1"
-                    />
+                    {isProcessing ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        Continue to Payment
+                        <ArrowRight
+                          size={18}
+                          className="transition-transform group-hover:translate-x-1"
+                        />
+                      </>
+                    )}
                   </button>
                 </form>
               )}
@@ -319,6 +354,12 @@ export default function CheckoutPage() {
                       order.
                     </p>
                   </div>
+
+                  {error && (
+                    <div className="mb-8 rounded-xl bg-red-50 p-4 text-red-600 text-sm border border-red-100 animate-in fade-in slide-in-from-top-4 duration-300">
+                      {error}
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     {[

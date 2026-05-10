@@ -1,49 +1,56 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import SectionHero from "@/component/layout/SectionHero";
-import { categories } from "@/lib/products";
+import { fetchProducts, fetchCategories } from "@/lib/api";
 import { FeaturedProducts } from "./components/FeaturedProducts";
 import { PhotoGrid } from "./components/PhotoGrid";
+import { Skeleton } from "@/components/ui/skeleton";
+import { parseMetadata } from "@/lib/utils";
 
 export default function Home() {
-  // Select some featured products from categories
-  const mugs = categories.find(c => c.slug === "mugs")?.items?.[0];
-  const cloths = categories.find(c => c.slug === "cloth-everyday")?.items?.[0];
-  const shirts = categories.find(c => c.slug === "shirts")?.items?.[0];
-  const other = categories.find(c => c.slug === "other")?.items?.[0];
+  const [products, setProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const products = [
-    {
-      href: "/products/mugs/classic-mug",
-      imageSrc: mugs?.image || "/img/build/pics/prod_mugs/p-mug-31.png",
-      name: mugs?.name || "Classic Mug",
-      price: mugs?.price || 12.99,
-      description: mugs?.shortDescription || "A beautiful classic mug.",
-      slug: "classic-mug",
-    },
-    {
-      href: "/products/cloth-everyday/kitchen-cloth-1",
-      imageSrc: cloths?.image || "/img/build/pics/prod_cloths/ready/p-cloth-1.png",
-      name: cloths?.name || "Kitchen Cloth #1",
-      price: cloths?.price || 20.99,
-      description: cloths?.shortDescription || "Premium cotton kitchen cloth.",
-      slug: "kitchen-cloth-1",
-    },
-    {
-      href: "/products/shirts/custom-cotton-shirt",
-      imageSrc: shirts?.image || "/img/build/pics/prod_shirts/p-shirt-1.png",
-      name: shirts?.name || "Custom Cotton Shirt",
-      price: shirts?.price || 24.99,
-      description: shirts?.shortDescription || "Design your custom shirt.",
-      slug: "custom-cotton-shirt",
-    },
-    {
-      href: "/products/other/gift-tissue-box",
-      imageSrc: other?.image || "/img/build/pics/misc/tissue-1.png",
-      name: other?.name || "Gift Tissue Box",
-      price: other?.price || 9.99,
-      description: other?.shortDescription || "Decorative tissue box.",
-      slug: "gift-tissue-box",
-    },
-  ];
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          fetchProducts(),
+          fetchCategories()
+        ]);
+        
+        // Map backend products to what FeaturedProducts expects
+        const mapped = productsData.slice(0, 4).map((p: any) => {
+          const category = categoriesData.find((c: any) => c.id === p.categoryId);
+          const categorySlug = category ? category.slug : "all";
+          const { text, metadata } = parseMetadata(p.description);
+          
+          const images = p.images || [];
+          const imageSrc = images.length > 0 
+            ? (typeof images[0] === 'string' ? images[0] : images[0].url)
+            : (metadata.image || p.image || "");
+          
+          return {
+            id: p.id,
+            href: `/products/${categorySlug}/${p.slug}`,
+            imageSrc,
+            name: p.name,
+            price: parseFloat(p.price) || 0,
+            description: text || p.description,
+            shortDescription: metadata.shortDescription || p.shortDescription,
+            slug: p.slug,
+          };
+        });
+        setProducts(mapped);
+      } catch (error) {
+        console.error("Failed to load products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   const photoGrid = [
     { src: "/img/build/pics/easter/easter1.png", title: "Happy Easter" },
@@ -59,7 +66,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Home Hero - No background image for EN version as per original en.html */}
       <SectionHero
         title="Fo oldal cime"
         description={
@@ -84,7 +90,21 @@ export default function Home() {
         className="pt-20 pb-16"
       />
 
-      <FeaturedProducts products={products} />
+      {isLoading ? (
+        <div className="container mx-auto px-4 md:px-8 py-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-4">
+                <Skeleton className="aspect-[4/5] w-full rounded-2xl" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/4" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <FeaturedProducts products={products} />
+      )}
 
       <PhotoGrid photos={photoGrid} />
     </div>

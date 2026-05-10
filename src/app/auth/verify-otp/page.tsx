@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldCheck, Loader2 } from "lucide-react";
 import { verifyOtp } from "@/lib/api";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 function VerifyOtpContent() {
   const [code, setCode] = useState("");

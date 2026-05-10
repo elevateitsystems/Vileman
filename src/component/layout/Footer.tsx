@@ -1,11 +1,36 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { Mail } from "lucide-react";
 import { Facebook, Instagram, Youtube, Visa, Mastercard, Maestro, Jcb, Discover } from "../icons";
+import { fetchCategories, fetchSubCategories } from "@/lib/api";
 
 const Footer = () => {
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const [categoriesData, subCategoriesData] = await Promise.all([
+          fetchCategories(),
+          fetchSubCategories()
+        ]);
+        
+        // Show only top-level categories (no parent category)
+        const topLevel = categoriesData.filter((cat: any) => !cat.categoryId);
+        
+        setCategories(topLevel);
+      } catch (error) {
+        console.error("Failed to load footer categories:", error);
+      }
+    }
+    loadCategories();
+  }, []);
+
   return (
-    <footer className="m main-footer bg-[url('/img/misc/doodles1.png')] bg-cover bg-center bg-no-repeat pt-[60px] pb-12 font-futura text-white">
+    <footer className="main-footer bg-[url('/img/misc/doodles1.png')] bg-cover bg-center bg-no-repeat pt-[60px] pb-12 font-futura text-white">
       <div className="container max-w-6xl mx-auto px-4 md:px-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 text-center md:text-left">
           {/* Website Links */}
@@ -29,7 +54,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  href="/#nasi_proizvodi"
+                  href="/products"
                   className="hover:text-white hover:opacity-100"
                 >
                   Products
@@ -38,44 +63,22 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Products */}
+          {/* Products - Dynamic */}
           <div>
             <h3 className="mb-[1.35em] text-[18px] font-bold uppercase text-white">
               Our products
             </h3>
             <ul className="space-y-3 text-[15px] text-white/85">
-              <li>
-                <Link
-                  href="/products/mugs"
-                  className="hover:text-white hover:opacity-100"
-                >
-                  Custom mugs
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/products/cloth-menu"
-                  className="hover:text-white hover:opacity-100"
-                >
-                  Kitchen cloths
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/products/shirts"
-                  className="hover:text-white hover:opacity-100"
-                >
-                  Custom shirts
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/products/other"
-                  className="hover:text-white hover:opacity-100"
-                >
-                  Other gifts
-                </Link>
-              </li>
+              {categories.map((cat) => (
+                <li key={cat.id}>
+                  <Link
+                    href={`/products/${cat.slug}`}
+                    className="hover:text-white hover:opacity-100"
+                  >
+                    {cat.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

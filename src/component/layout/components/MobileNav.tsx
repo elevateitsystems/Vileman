@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Category } from "@/lib/products";
 import { useAuth } from "@/hooks/useAuth";
 import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface MobileNavProps {
   categories: Category[];
@@ -13,6 +14,7 @@ interface MobileNavProps {
 
 export function MobileNav({ categories, isOpen, onClose }: MobileNavProps) {
   const { isAuthenticated, logout } = useAuth();
+  const router = useRouter();
   if (!isOpen) return null;
 
   return (
@@ -30,14 +32,29 @@ export function MobileNav({ categories, isOpen, onClose }: MobileNavProps) {
         </div>
         <div className="pl-4 flex flex-col gap-4 border-l-2 border-gray-100">
           {categories.map((cat) => (
-            <Link
-              key={cat.slug}
-              href={`/products/${cat.slug}`}
-              className="text-gray-600"
-              onClick={onClose}
-            >
-              {cat.name}
-            </Link>
+            <div key={cat.slug} className="flex flex-col gap-3">
+              <Link
+                href={`/products/${cat.slug}`}
+                className="text-gray-600 font-medium"
+                onClick={onClose}
+              >
+                {cat.name}
+              </Link>
+              {cat.subcategory && cat.subcategory.length > 0 && (
+                <div className="pl-4 flex flex-col gap-3 border-l-2 border-gray-50">
+                  {cat.subcategory.map((sub: any) => (
+                    <Link
+                      key={sub.slug}
+                      href={`/products/${sub.slug}`}
+                      className="text-gray-500 text-sm"
+                      onClick={onClose}
+                    >
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           ))}
         </div>
         <Link
@@ -69,8 +86,9 @@ export function MobileNav({ categories, isOpen, onClose }: MobileNavProps) {
               </Link>
             )}
             <button
-              onClick={() => {
-                logout();
+              onClick={async () => {
+                await logout();
+                router.push("/");
                 onClose();
               }}
               className="text-lg font-semibold text-red-500 text-left flex items-center gap-2"

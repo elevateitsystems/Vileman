@@ -25,7 +25,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             <div className="grid grid-cols-4 gap-2">
               {product.images.map((img, i) => (
                 <div key={i} className="aspect-square rounded-lg overflow-hidden border border-gray-100 bg-gray-50">
-                  <img src={img} alt={`${product.name} ${i}`} className="w-full h-full object-cover" />
+                  <Image width={600} height={600} src={img} alt={`${product.name} ${i}`} className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>

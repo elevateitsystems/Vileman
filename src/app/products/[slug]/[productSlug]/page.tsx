@@ -1,52 +1,103 @@
-import { getProductBySlug, categories } from "@/lib/products";
+"use client";
+
+import { useEffect, useState, use } from "react";
+import { fetchCategories, fetchProducts } from "@/lib/api";
 import { notFound } from "next/navigation";
 import { SectionHero } from "@/component/product/SectionHero";
 import { ProductGallery } from "./components/ProductGallery";
 import { ProductOrderCard } from "./components/ProductOrderCard";
 import { ProductDescription } from "./components/ProductDescription";
+import { parseMetadata } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export function generateStaticParams() {
-  const params: { slug: string; productSlug: string }[] = [];
-
-  categories.forEach((category) => {
-    if (category.items) {
-      category.items.forEach((item) => {
-        params.push({
-          slug: category.slug,
-          productSlug: item.slug,
-        });
-      });
-    }
-  });
-
-  return params;
-}
-
-export default async function ProductDetailPage({
-  params,
+export default function ProductDetailPage({
+  params: paramsPromise,
 }: {
   params: Promise<{ slug: string; productSlug: string }>;
 }) {
-  const { slug, productSlug } = await params;
-  const category = getProductBySlug(slug);
+  const params = use(paramsPromise);
+  const { slug, productSlug } = params;
 
-  if (!category || !category.items) {
-    notFound();
+  const [category, setCategory] = useState<any>(null);
+  const [product, setProduct] = useState<any>(null);
+  const [categoryProducts, setCategoryProducts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const allCategories = await fetchCategories();
+        const foundCategory = allCategories.find((c: any) => c.slug === slug);
+
+        if (!foundCategory) {
+          setIsLoading(false);
+          return;
+        }
+
+        const { metadata } = parseMetadata(foundCategory.description);
+        setCategory({ ...foundCategory, ...metadata });
+
+        const allProducts = await fetchProducts();
+        const foundProduct = allProducts.find((p: any) => p.slug === productSlug);
+
+        if (!foundProduct) {
+          setIsLoading(false);
+          return;
+        }
+
+        setProduct(foundProduct);
+
+        // Fetch other products in same category for the gallery
+        const filteredProducts = allProducts.filter((p: any) => p.categoryId === foundCategory.id);
+        setCategoryProducts(filteredProducts);
+
+      } catch (error) {
+        console.error("Failed to load product detail:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, [slug, productSlug]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#fcfcfc]">
+        <Skeleton className="h-[400px] w-full rounded-none" />
+        <div className="container max-w-6xl mx-auto px-4 md:px-0 py-16">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
+            <Skeleton className="aspect-square w-full rounded-2xl" />
+            <div className="space-y-6">
+              <Skeleton className="h-10 w-3/4" />
+              <Skeleton className="h-6 w-1/4" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-12 w-full rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  const product = category.items.find((item) => item.slug === productSlug);
-
-  if (!product) {
+  if (!category || !product) {
     notFound();
   }
 
   return (
     <div className="product-detail-page flex min-h-screen flex-col bg-[#fcfcfc]">
-      <SectionHero backgroundImage={category.heroImage} heading={category.name} />
+      <SectionHero 
+        backgroundImage={category.heroImage || "/img/build/pics/misc/bgcl1.png"} 
+        heading={category.name} 
+      />
 
       <section className="container max-w-6xl mx-auto px-4 md:px-0 pb-24 pt-16">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
-          <ProductGallery items={category.items} />
+          <ProductGallery 
+            images={product.images && product.images.length > 0 
+              ? product.images.map((img: any) => typeof img === 'string' ? img : img.url) 
+              : [product.image]} 
+            name={product.name} 
+          />
           <ProductOrderCard product={product} />
         </div>
 

@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, LogOut, User as UserIcon, ChevronDown } from "lucide-react";
-import { categories } from "@/lib/products";
+import { fetchCategories, fetchSubCategories } from "@/lib/api";
 import { DesktopNav } from "./components/DesktopNav";
 import { MobileNav } from "./components/MobileNav";
 import { CartBadge } from "./components/CartBadge";
@@ -18,12 +18,39 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
   const { isAuthenticated, logout, user } = useAuth();
 
-  // Filter to show top-level categories and handle subcategories
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const [categoriesData, subCategoriesData] = await Promise.all([
+          fetchCategories(),
+          fetchSubCategories()
+        ]);
+        
+        // Nest categories for navigation
+        // A category is top-level if it doesn't have a categoryId
+        const topLevel = categoriesData.filter((cat: any) => !cat.categoryId);
+        const nested = topLevel.map((parent: any) => ({
+          ...parent,
+          subcategory: subCategoriesData.filter((sub: any) => sub.categoryId === parent.id)
+        }));
+        
+        setCategories(nested);
+      } catch (error) {
+        console.error("Failed to load categories for header:", error);
+      }
+    }
+    loadCategories();
+  }, []);
+
+  // Filter out any internal cloth menus if needed
   const mainCategories = categories.filter(
     (cat) => !cat.slug.startsWith("cloth-") || cat.slug === "cloth-menu"
   );
@@ -103,7 +130,10 @@ const Header = () => {
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
-                    onClick={logout}
+                    onClick={async () => {
+                      await logout();
+                      router.push("/");
+                    }}
                     className="cursor-pointer rounded-lg gap-2 text-red-600 focus:text-red-600 focus:bg-red-50"
                   >
                     <LogOut className="h-4 w-4" />
@@ -137,9 +167,8 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <MobileNav 
-        categories={categories} 
+        categories={mainCategories} 
         isOpen={isOpen} 
         onClose={() => setIsOpen(false)} 
       />

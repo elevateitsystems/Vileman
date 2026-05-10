@@ -16,7 +16,7 @@ import { Lock, Mail, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { login } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -35,7 +35,13 @@ export default function LoginPage() {
       if (response.success) {
         setAuth(response.data.user, response.data.token);
         toast.success("Login successful!");
-        router.push("/admin");
+        
+        // Requirement: Authorized user redirect to admin, unauthorize redirect to /
+        if (response.data.user.role === 'admin') {
+          router.push("/admin");
+        } else {
+          router.push("/");
+        }
       } else {
         toast.error(response.message || "Invalid credentials");
       }

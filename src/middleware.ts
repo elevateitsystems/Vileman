@@ -11,8 +11,8 @@ export function middleware(request: NextRequest) {
     
     // Requirement: "if anyone somehow hit admin, if he don't autherized for admin then rediect him login"
     if (!token || role !== 'admin') {
-      const loginUrl = new URL('/auth/login', request.url);
-      return NextResponse.redirect(loginUrl);
+      const homeUrl = new URL('/', request.url);
+      return NextResponse.redirect(homeUrl);
     }
   }
 

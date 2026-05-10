@@ -32,6 +32,14 @@ export async function DELETE(
   return handleRequest(request, resolvedParams.path);
 }
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ path: string[] }> }
+) {
+  const resolvedParams = await params;
+  return handleRequest(request, resolvedParams.path);
+}
+
 async function handleRequest(request: NextRequest, path: string[]) {
   const backendUrl = process.env.BACKEND_URL || 'https://vileman-backend.onrender.com/api';
   const targetUrl = `${backendUrl}/${path.join('/')}${request.nextUrl.search}`;

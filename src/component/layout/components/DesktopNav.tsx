@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { Category } from "@/lib/products";
 
 interface DesktopNavProps {
@@ -39,22 +39,22 @@ export function DesktopNav({ categories }: DesktopNavProps) {
           <div className="w-[232px] rounded-lg bg-white py-[1.0625em] text-left shadow-[0_16px_50px_rgba(0,0,0,0.07)] border border-gray-100">
             {categories.map((cat) => (
               <div key={cat.slug} className="relative group/sub">
-                {cat.subcategory ? (
+                {cat.subcategory && cat.subcategory.length > 0 ? (
                   <>
-                    <button className="flex w-full items-center justify-between px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]">
-                      {cat.name}{" "}
-                      <ChevronDown className="h-4 w-4 -rotate-90 opacity-40" />
-                    </button>
-                    <div className="absolute left-full top-0 ml-1 pt-0 hidden group-hover/sub:block w-64">
-                      <div className="w-[232px] rounded-lg bg-white py-[1.0625em] shadow-[0_16px_50px_rgba(0,0,0,0.07)] border border-gray-100">
+                    <div className="flex w-full items-center justify-between px-[2.5em] py-[0.8em] text-[16px] leading-normal text-[#797b86] group-hover/sub:bg-[#f8f9fa] group-hover/sub:text-[#181b31] transition-all duration-200 cursor-default">
+                      <span className="font-medium">{cat.name}</span>
+                      <ChevronRight className="h-4 w-4 opacity-40 group-hover/sub:opacity-100 transition-opacity" />
+                    </div>
+                    <div className="absolute left-full top-[-1px] ml-0 hidden group-hover/sub:block min-w-[280px] h-full">
+                      <div className="rounded-r-lg bg-white py-[1.2em] shadow-[12px_16px_50px_rgba(0,0,0,0.1)] border border-gray-100 border-l-0 min-h-[200px]">
                         {cat.subcategory.map((sub) => (
                           <Link
                             key={sub.slug}
                             href={`/products/${sub.slug}`}
-                            className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]"
+                            className="block px-[2.5em] py-[0.9em] text-[15px] leading-tight text-[#797b86] hover:bg-[#f3f4f6] hover:text-[#181b31] transition-colors"
                             onClick={closeDropdown}
                           >
-                            {sub.name}
+                            <div className="font-medium whitespace-nowrap">{sub.name}</div>
                           </Link>
                         ))}
                       </div>
@@ -63,7 +63,7 @@ export function DesktopNav({ categories }: DesktopNavProps) {
                 ) : (
                   <Link
                     href={`/products/${cat.slug}`}
-                    className="block px-[2.5em] py-[0.7em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31]"
+                    className="block px-[2.5em] py-[0.8em] text-[16px] leading-normal text-[#797b86] hover:bg-[#e7eaee] hover:text-[#181b31] transition-colors"
                     onClick={closeDropdown}
                   >
                     {cat.name}

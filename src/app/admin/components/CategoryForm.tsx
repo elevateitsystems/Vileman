@@ -10,19 +10,22 @@ import { Form as FormUI, FormControl, FormField, FormItem, FormLabel, FormMessag
 
 const categorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
+  description: z.string().optional(),
 });
 
 type CategoryFormValues = z.infer<typeof categorySchema>;
 
 interface CategoryFormProps {
   onSubmit: (data: CategoryFormValues) => void;
+  initialData?: CategoryFormValues;
 }
 
-export function CategoryForm({ onSubmit }: CategoryFormProps) {
+export function CategoryForm({ onSubmit, initialData }: CategoryFormProps) {
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
-    defaultValues: {
+    defaultValues: initialData || {
       name: "",
+      description: "",
     },
   });
 
@@ -42,8 +45,21 @@ export function CategoryForm({ onSubmit }: CategoryFormProps) {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description</FormLabel>
+              <FormControl>
+                <Input placeholder="Brief description of the category" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button type="submit" className="w-full bg-brand-primary hover:bg-brand-primary/90">
-          Create Category
+          {initialData ? "Update Category" : "Create Category"}
         </Button>
       </form>
     </FormUI>

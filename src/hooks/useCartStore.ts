@@ -3,12 +3,14 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import { Product } from "@/lib/products";
 
 export interface CartItem {
+  id: string;
   slug: string;
   name: string;
   shortDescription: string;
   image: string;
   price: number;
   cartQuantity: number;
+  color?: string;
 }
 
 export interface CustomerInfo {
@@ -21,7 +23,7 @@ export interface CustomerInfo {
 interface CartState {
   items: CartItem[];
   customerInfo: CustomerInfo;
-  addItem: (product: Product, quantity?: number) => void;
+  addItem: (product: any, quantity?: number) => void;
   removeItem: (productSlug: string) => void;
   updateQuantity: (productSlug: string, quantity: number) => void;
   setCustomerInfo: (info: CustomerInfo) => void;
@@ -29,7 +31,7 @@ interface CartState {
   getTotalPrice: () => number;
   getTotalItems: () => number;
   singleOrderProduct: CartItem | null;
-  setSingleOrderProduct: (product: Product | null) => void;
+  setSingleOrderProduct: (product: any | null) => void;
 }
 
 export const useCartStore = create<CartState>()(
@@ -51,12 +53,14 @@ export const useCartStore = create<CartState>()(
         }
 
         const cartItem: CartItem = {
+          id: product.id || "",
           slug: product.slug,
           name: product.name,
           shortDescription: product.shortDescription,
-          image: product.image,
+          image: product.image || product.images?.[0],
           price: product.price,
-          cartQuantity: 1
+          cartQuantity: 1,
+          color: product.color || product.colors?.[0]
         };
         set({ singleOrderProduct: cartItem });
       },
@@ -77,12 +81,14 @@ export const useCartStore = create<CartState>()(
           });
         } else {
           const newItem: CartItem = {
+            id: product.id || "",
             slug: product.slug,
             name: product.name,
             shortDescription: product.shortDescription,
-            image: product.image,
+            image: product.image || product.images?.[0],
             price: product.price,
-            cartQuantity: quantity
+            cartQuantity: quantity,
+            color: product.color || product.colors?.[0]
           };
           set({
             items: [...currentItems, newItem],

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -14,32 +15,55 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { changePassword } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "react-toastify";
+import { Loader2 } from "lucide-react";
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
   newPassword: z.string().min(6, "New password must be at least 6 characters"),
-  confirmPassword: z.string().min(1, "Please confirm your new password"),
-}).refine((data) => data.newPassword === data.confirmPassword, {
+  confirmNewPassword: z.string().min(1, "Please confirm your new password"),
+}).refine((data) => data.newPassword === data.confirmNewPassword, {
   message: "Passwords do not match",
-  path: ["confirmPassword"],
+  path: ["confirmNewPassword"],
 });
 
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export function PasswordSettings() {
+  const [isLoading, setIsLoading] = useState(false);
+  const token = useAuth((state) => state.token);
+  
   const form = useForm<PasswordFormValues>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
       currentPassword: "",
       newPassword: "",
-      confirmPassword: "",
+      confirmNewPassword: "",
     },
   });
 
-  const onSubmit = (data: PasswordFormValues) => {
-    console.log("Password change requested:", data);
-    // Backend logic to be added by user
-    alert("Password change functionality would be called here.");
+  const onSubmit = async (data: PasswordFormValues) => {
+    if (!token) {
+      toast.error("Session expired. Please login again.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await changePassword(token, data.currentPassword, data.newPassword, data.confirmNewPassword);
+      if (response.success) {
+        toast.success("Password updated successfully!");
+        form.reset();
+      } else {
+        toast.error(response.message || "Failed to update password");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -52,15 +76,20 @@ export function PasswordSettings() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-md">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-md">
             <FormField
               control={form.control}
               name="currentPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Current Password</FormLabel>
+                  <FormLabel className="text-gray-600 font-bold uppercase tracking-wider text-xs">Current Password</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      // className="h-12 border-gray-100 focus:border-brand-primary focus:ring-brand-primary/20 transition-all rounded-xl"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -71,9 +100,14 @@ export function PasswordSettings() {
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Password</FormLabel>
+                  <FormLabel className="text-gray-600 font-bold uppercase tracking-wider text-xs">New Password</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      // className="h-12 border-gray-100 focus:border-brand-primary focus:ring-brand-primary/20 transition-all rounded-xl"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -81,19 +115,36 @@ export function PasswordSettings() {
             />
             <FormField
               control={form.control}
-              name="confirmPassword"
+              name="confirmNewPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm New Password</FormLabel>
+                  <FormLabel className="text-gray-600 font-bold uppercase tracking-wider text-xs">Confirm New Password</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      // className="h-12 border-gray-100 focus:border-brand-primary focus:ring-brand-primary/20 transition-all rounded-xl"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="bg-brand-primary hover:bg-brand-primary/90">
-              Update Password
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className='bg-brand-primary hover:bg-brand-primary/90'
+              // className="w-full h-12 bg-brand-primary hover:bg-brand-primary/90 text-white font-bold rounded-xl transition-all shadow-lg shadow-brand-primary/20"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                "Update Password"
+              )}
             </Button>
           </form>
         </Form>

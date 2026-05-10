@@ -13,26 +13,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { categories } from "@/lib/products";
 import { Form as FormUI, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 const subCategorySchema = z.object({
   name: z.string().min(1, "Subcategory name is required"),
-  category: z.string().min(1, "Parent category is required"),
+  categoryId: z.string().min(1, "Parent category is required"),
+  description: z.string().optional(),
 });
 
 type SubCategoryFormValues = z.infer<typeof subCategorySchema>;
 
 interface SubCategoryFormProps {
+  categories: any[];
   onSubmit: (data: SubCategoryFormValues) => void;
+  initialData?: SubCategoryFormValues;
 }
 
-export function SubCategoryForm({ onSubmit }: SubCategoryFormProps) {
+export function SubCategoryForm({ categories, onSubmit, initialData }: SubCategoryFormProps) {
   const form = useForm<SubCategoryFormValues>({
     resolver: zodResolver(subCategorySchema),
-    defaultValues: {
+    defaultValues: initialData || {
       name: "",
-      category: "",
+      categoryId: "",
+      description: "",
     },
   });
 
@@ -55,19 +58,24 @@ export function SubCategoryForm({ onSubmit }: SubCategoryFormProps) {
 
         <FormField
           control={form.control}
-          name="category"
+          name="categoryId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Parent Category</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select parent category" />
+                    <span className="flex flex-1 text-left text-sm" data-slot="select-value">
+                      {field.value
+                        ? categories.find(c => c.id === field.value)?.name || "Select parent category"
+                        : <span className="text-muted-foreground">Select parent category</span>
+                      }
+                    </span>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {categories.map((cat) => (
-                    <SelectItem key={cat.slug} value={cat.slug}>
+                    <SelectItem key={cat.id} value={cat.id}>
                       {cat.name}
                     </SelectItem>
                   ))}
@@ -78,11 +86,25 @@ export function SubCategoryForm({ onSubmit }: SubCategoryFormProps) {
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="Brief description" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <Button
           type="submit"
           className="w-full bg-brand-primary hover:bg-brand-primary/90"
         >
-          Create Subcategory
+          {initialData ? "Update Subcategory" : "Create Subcategory"}
         </Button>
       </form>
     </FormUI>

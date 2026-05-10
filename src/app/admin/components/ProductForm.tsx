@@ -13,7 +13,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { categories } from "@/lib/products";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload, X } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -22,15 +22,15 @@ const productSchema = z.object({
   slug: z.string().min(1, "Slug is required"),
   name: z.string().min(1, "Name is required"),
   price: z.coerce.number().positive("Price must be positive"),
-  delivery: z.string().min(1, "Delivery info is required"),
+  delivery: z.string().optional(),
   shortDescription: z.string().min(1, "Short description is required"),
   description: z.string().min(1, "Full description is required"),
   dimensions: z.string().min(1, "Dimensions are required"),
   print: z.string().min(1, "Print info is required"),
-  paper: z.string().min(1, "Paper info is required"),
-  image: z.string().min(1, "Main image is required"),
+  paper: z.string(),
+  image: z.string().optional(),
   images: z.array(z.string()).optional(),
-  category: z.string().min(1, "Category is required"),
+  categoryId: z.string().min(1, "Category is required"),
   color: z.string().optional(),
   quantity: z.coerce.number().int().nonnegative().optional(),
 });
@@ -38,12 +38,15 @@ const productSchema = z.object({
 export type ProductFormValues = z.infer<typeof productSchema>;
 
 interface ProductFormProps {
+  categories: any[];
   initialData?: Partial<ProductFormValues>;
   onSubmit: (data: ProductFormValues) => void;
+  isSubmitting?: boolean;
 }
 
-export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
+export function ProductForm({ categories, initialData, onSubmit, isSubmitting }: ProductFormProps) {
   const [previews, setPreviews] = useState<string[]>(initialData?.images || (initialData?.image ? [initialData.image] : []));
+  const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProductFormValues>({
@@ -60,25 +63,28 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
       paper: "",
       image: "",
       images: [],
-      category: "",
+      categoryId: "",
       color: "",
       quantity: 0,
     },
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
+    const selectedFiles = e.target.files;
+    if (!selectedFiles) return;
+
+    const newFiles = Array.from(selectedFiles);
+    setFiles((prev) => [...prev, ...newFiles]);
 
     const newPreviews: string[] = [];
     const currentImages = form.getValues("images") || [];
 
-    Array.from(files).forEach((file) => {
+    newFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
         newPreviews.push(result);
-        if (newPreviews.length === files.length) {
+        if (newPreviews.length === newFiles.length) {
           const updatedImages = [...currentImages, ...newPreviews];
           setPreviews(updatedImages);
           form.setValue("images", updatedImages);
@@ -91,9 +97,23 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
     });
   };
 
+  const onFormSubmit = (data: ProductFormValues) => {
+    onSubmit({ ...data, fileObjects: files } as any);
+  };
+
   const removeImage = (index: number) => {
     const currentImages = form.getValues("images") || [];
     const updatedImages = currentImages.filter((_, i) => i !== index);
+    
+    // Also remove from files state if it was a newly added file
+    // The newly added files are at the end of the previews/images array
+    // Count how many existing images we had
+    const initialCount = (initialData?.images?.length || (initialData?.image ? 1 : 0));
+    if (index >= initialCount) {
+      const fileIndex = index - initialCount;
+      setFiles(prev => prev.filter((_, i) => i !== fileIndex));
+    }
+
     setPreviews(updatedImages);
     form.setValue("images", updatedImages);
     
@@ -104,7 +124,7 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Basic Info */}
           <FormField
@@ -140,7 +160,7 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Price ($)</FormLabel>
+                <FormLabel>Price (€)</FormLabel>
                 <FormControl>
                   <Input type="number" step="0.01" {...field} />
                 </FormControl>
@@ -151,7 +171,7 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
 
           <FormField
             control={form.control}
-            name="category"
+            name="categoryId"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
@@ -161,12 +181,17 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a category" />
+                      <span className="flex flex-1 text-left text-sm" data-slot="select-value">
+                        {field.value
+                          ? categories.find(c => c.id === field.value)?.name || "Select a category"
+                          : <span className="text-muted-foreground">Select a category</span>
+                        }
+                      </span>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {categories.map((cat) => (
-                      <SelectItem key={cat.slug} value={cat.slug}>
+                      <SelectItem key={cat.id} value={cat.id}>
                         {cat.name}
                       </SelectItem>
                     ))}
@@ -228,17 +253,19 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
 
           <FormField
             control={form.control}
-            name="delivery"
+            name="quantity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Delivery Time</FormLabel>
+                <FormLabel>Stock Quantity</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. 3-5 days" {...field} />
+                  <Input type="number" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+
         </div>
 
         {/* Descriptions */}
@@ -319,8 +346,12 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
 
         <Button
           type="submit"
+          disabled={isSubmitting}
           className="w-full bg-brand-primary hover:bg-brand-primary/90"
         >
+          {isSubmitting ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          ) : null}
           Save Product
         </Button>
       </form>

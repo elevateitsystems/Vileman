@@ -3,6 +3,7 @@
 import ProductBox from "@/component/product/ProductBox";
 
 interface FeaturedProduct {
+  id: string;
   href: string;
   imageSrc: string;
   name: string;

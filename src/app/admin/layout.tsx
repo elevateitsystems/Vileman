@@ -50,7 +50,7 @@ export default function AdminLayout({
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
     await logout();
-    router.push("/auth/login");
+    router.push("/");
   };
 
   return (

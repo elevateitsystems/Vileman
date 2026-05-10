@@ -1,15 +1,15 @@
 "use client";
 
 import { ProductInfo } from "@/component/product/ProductInfo";
-import { Product } from "@/lib/products";
-import { FileText, Maximize, Printer, Truck, ShoppingCart } from "lucide-react";
+import { FileText, Maximize, Printer, ShoppingCart, Truck } from "lucide-react";
 import { useCartStore } from "@/hooks/useCartStore";
 import { useState } from "react";
+import { parseMetadata } from "@/lib/utils";
 
 import { useRouter } from "next/navigation";
 
 interface ProductOrderCardProps {
-  product: Product;
+  product: any;
 }
 
 export function ProductOrderCard({ product }: ProductOrderCardProps) {
@@ -17,14 +17,30 @@ export function ProductOrderCard({ product }: ProductOrderCardProps) {
   const { addItem, setSingleOrderProduct } = useCartStore();
   const [isAdded, setIsAdded] = useState(false);
 
+  const { text, metadata } = parseMetadata(product.description || "");
+  const price = parseFloat(product.price) || 0;
+
   const handleAddToCart = () => {
-    addItem(product, 1);
+    // Map backend product to CartItem expected by store
+    const cartProduct = {
+      ...product,
+      price: price,
+      image: product.images?.[0] || metadata.image || "/img/build/pics/prod_mugs/p-mug-31.png",
+      shortDescription: metadata.shortDescription || product.shortDescription
+    };
+    addItem(cartProduct, 1);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2000);
   };
 
   const handleOrder = () => {
-    setSingleOrderProduct(product);
+    const cartProduct = {
+      ...product,
+      price: price,
+      image: product.images?.[0] || metadata.image || "/img/build/pics/prod_mugs/p-mug-31.png",
+      shortDescription: metadata.shortDescription || product.shortDescription
+    };
+    setSingleOrderProduct(cartProduct);
     router.push("/checkout");
   };
 
@@ -35,27 +51,29 @@ export function ProductOrderCard({ product }: ProductOrderCardProps) {
           {product.name}
         </h3>
         <strong className="text-[32px] font-bold text-black">
-          {product.price.toFixed(2)} EUR
+          {price.toFixed(2)} EUR
         </strong>
       </div>
 
       <p className="my-5 text-[18px] font-light leading-relaxed text-[#797b86] md:text-[21px]">
-        {product?.description}
+        {text || product?.description}
       </p>
 
       <div className="grid grid-cols-1 gap-x-8 gap-y-10 sm:grid-cols-2">
         <ProductInfo
           icon={<Maximize />}
           label="DIMENSIONS"
-          value={product.dimensions}
+          value={metadata.dimensions || product.dimensions}
         />
-        <ProductInfo icon={<Printer />} label="PRINT" value={product.print} />
-        <ProductInfo icon={<FileText />} label="PAPER" value={product.paper} />
-        <ProductInfo
-          icon={<Truck />}
-          label="DELIVERY"
-          value={product.delivery}
-        />
+        <ProductInfo icon={<Printer />} label="PRINT" value={metadata.print || product.print} />
+        <ProductInfo icon={<FileText />} label="PAPER" value={metadata.paper || product.paper} />
+        {(metadata.delivery || product.delivery) && (
+          <ProductInfo 
+            icon={<Truck />} 
+            label="DELIVERY" 
+            value={metadata.delivery || product.delivery} 
+          />
+        )}
       </div>
 
       <div className="mt-14 flex flex-col gap-4">

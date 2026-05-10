@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, ArrowLeft, Send, Loader2 } from "lucide-react";
 import { forgotPassword } from "@/lib/api";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

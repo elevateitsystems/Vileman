@@ -12,12 +12,6 @@ export default function SettingsPage() {
 
       <div className="grid grid-cols-1 gap-6">
         <PasswordSettings />
-        
-        {/* Placeholder for other settings */}
-        <div className="p-8 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-gray-400 bg-white/50">
-          <p className="font-medium">Account Profile Settings</p>
-          <p className="text-sm">Additional profile management features can be added here.</p>
-        </div>
       </div>
     </div>
   );
