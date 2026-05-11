@@ -1,18 +1,18 @@
 "use client";
 
 import { use, useState, useEffect } from "react";
-import { ProductForm } from "../../../components/ProductForm";
+import { EditProductForm } from "../../../../components/EditProductForm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchProductBySlug, fetchCategories, updateProduct } from "@/lib/api";
+import { fetchProductById, fetchCategories, fetchSubCategories, updateProduct } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { parseMetadata } from "@/lib/utils";
 import { toast } from "react-toastify";
 
-export default function EditProductPage({ params }: { params: Promise<{ slug: string }> }) {
+export default function EditProductPage({ params }: { params: Promise<{ slug: string, id: string }> }) {
   const resolvedParams = use(params);
   const { token } = useAuth();
   const router = useRouter();
@@ -26,24 +26,32 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [prodData, catsData] = await Promise.all([
-          fetchProductBySlug(resolvedParams.slug),
-          fetchCategories()
+        const [prodData, catsData, subCatsData] = await Promise.all([
+          fetchProductById(resolvedParams.id),
+          fetchCategories(),
+          fetchSubCategories()
         ]);
-
-        const metadata = parseMetadata(prodData.description);
+        const { text, metadata } = parseMetadata(prodData.description);
         
+        // Nest categories so EditProductForm can detect subcategories
+        const topLevel = catsData.filter((cat: any) => !cat.categoryId);
+        const nested = topLevel.map((parent: any) => ({
+          ...parent,
+          subcategory: subCatsData.filter((sub: any) => sub.categoryId === parent.id)
+        }));
+
         // Map backend data back to form values
         const formInitialData = {
           ...prodData,
           ...metadata,
-          description: metadata.text || prodData.description,
+          description: text || prodData.description,
           categoryId: prodData.categoryId,
+          subCategoryId: prodData.subCategoryId || "",
           price: parseFloat(prodData.price)
         };
 
         setProduct(formInitialData);
-        setCategories(catsData);
+        setCategories(nested);
       } catch (error) {
         console.error("Failed to load product edit data:", error);
       } finally {
@@ -51,7 +59,7 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
       }
     };
     loadData();
-  }, [resolvedParams.slug]);
+  }, [resolvedParams.id]);
 
   const handleUpdateProduct = async (data: any) => {
     if (!token || !product) return;
@@ -62,6 +70,9 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
       formData.append("slug", data.slug);
       formData.append("price", data.price.toString());
       formData.append("categoryId", data.categoryId);
+      if (data.subCategoryId) {
+        formData.append("subCategoryId", data.subCategoryId);
+      }
       formData.append("quantity", (data.quantity || 0).toString());
 
       const descriptionJson = JSON.stringify({
@@ -80,11 +91,24 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
         });
       }
 
-      await updateProduct(token, product.id, formData);
+      // Append deleted image IDs if any
+      if (data.deleteimageIds && data.deleteimageIds.length > 0) {
+        formData.append("deleteimageIds", JSON.stringify(data.deleteimageIds));
+      }
+
+      const response = await updateProduct(token, product.id, formData);
+      if (response.success === false) {
+        const errorMessage = response.error?.details?.issues?.[0]?.message || response.message || "Failed to update product";
+        toast.error(errorMessage);
+        return;
+      }
+
       toast.success("Product updated successfully!");
       router.push("/admin/products");
     } catch (err: any) {
-      toast.error(err.message || "Failed to update product");
+      console.error("Error updating product:", err);
+      const errorMessage = err.error?.details?.issues?.[0]?.message || err.message || "Failed to update product";
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -142,7 +166,7 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
         </div>
       ) : (
         <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm max-w-4xl">
-          <ProductForm 
+          <EditProductForm 
             categories={categories}
             initialData={product} 
             onSubmit={handleUpdateProduct} 

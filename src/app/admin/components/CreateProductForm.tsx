@@ -11,10 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { categories } from "@/lib/products";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import Image from "next/image";
@@ -37,24 +36,24 @@ const productSchema = z.object({
   quantity: z.coerce.number().int().nonnegative().optional(),
 });
 
-export type ProductFormValues = z.infer<typeof productSchema>;
+type ProductFormValues = z.infer<typeof productSchema>;
 
-interface ProductFormProps {
+interface CreateProductFormProps {
   categories: any[];
-  initialData?: Partial<ProductFormValues>;
-  onSubmit: (data: ProductFormValues) => void;
+  onSubmit: (data: any) => void;
   isSubmitting?: boolean;
 }
 
-export function ProductForm({ categories, initialData, onSubmit, isSubmitting }: ProductFormProps) {
-  const [previews, setPreviews] = useState<any[]>(initialData?.images || (initialData?.image ? [initialData.image] : []));
+export function CreateProductForm({ categories, onSubmit, isSubmitting }: CreateProductFormProps) {
   const [files, setFiles] = useState<File[]>([]);
-  const [deletedImageIds, setDeletedImageIds] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [primaryImage, setPrimaryImage] = useState<string>("");
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as any,
-    defaultValues: initialData || {
+    defaultValues: {
       slug: "",
       name: "",
       price: 0,
@@ -73,21 +72,6 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
     },
   });
 
-  // Reset form when initialData is loaded
-  useEffect(() => {
-    if (initialData) {
-      form.reset(initialData);
-      const initialImages = initialData.images || (initialData.image ? [initialData.image] : []);
-      setPreviews(initialImages);
-      
-      // If no primary image is set, set the first one as primary
-      if (!form.getValues("image") && initialImages.length > 0) {
-        const firstImg = initialImages[0];
-        form.setValue("image", typeof firstImg === 'object' ? firstImg.url : firstImg);
-      }
-    }
-  }, [initialData, form]);
-
   const selectedCategoryId = form.watch("categoryId");
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
   const subCategories = selectedCategory?.subcategory || [];
@@ -97,71 +81,51 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
 
-    const newFiles = Array.from(selectedFiles);
-    setFiles((prev) => [...prev, ...newFiles]);
+    const filesArray = Array.from(selectedFiles);
+    setFiles((prev) => [...prev, ...filesArray]);
 
-    const newPreviews: string[] = [];
-    const currentImages = form.getValues("images") || [];
-
-    newFiles.forEach((file) => {
+    filesArray.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
-        newPreviews.push(result);
-        if (newPreviews.length === newFiles.length) {
-          const updatedImages = [...currentImages, ...newPreviews];
-          setPreviews(updatedImages);
-          form.setValue("images", updatedImages);
-          if (!form.getValues("image")) {
-            form.setValue("image", updatedImages[0]);
+        setPreviews((prev) => {
+          const updated = [...prev, result];
+          if (!primaryImage && updated.length === 1) {
+            setPrimaryImage(result);
           }
-        }
+          return updated;
+        });
       };
       reader.readAsDataURL(file);
     });
   };
 
-  const onFormSubmit = (data: ProductFormValues) => {
-    onSubmit({ ...data, fileObjects: files, deleteimageIds: deletedImageIds } as any);
-  };
-
   const removeImage = (index: number) => {
-    const currentImages = form.getValues("images") || [];
-    const updatedImages = currentImages.filter((_, i) => i !== index);
-    
-    // Also remove from files state if it was a newly added file
-    const initialCount = (initialData?.images?.length || (initialData?.image ? 1 : 0));
-    if (index >= initialCount) {
-      const fileIndex = index - initialCount;
-      setFiles(prev => prev.filter((_, i) => i !== fileIndex));
-    } else {
-      // It's an initial image, track its ID if it has one
-      const imageToRemove = previews[index];
-      if (imageToRemove && typeof imageToRemove === 'object' && imageToRemove.id) {
-        setDeletedImageIds(prev => [...prev, imageToRemove.id]);
-      } else if (imageToRemove && typeof imageToRemove === 'string' && initialData?.images?.[index] && typeof initialData.images[index] === 'object') {
-        // Fallback check if previews are strings but original data had objects
-        const originalImage = initialData.images[index] as any;
-        if (originalImage.id) {
-          setDeletedImageIds(prev => [...prev, originalImage.id]);
-        }
+    const previewToRemove = previews[index];
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+
+    if (primaryImage === previewToRemove) {
+      if (previews.length > 1) {
+        setPrimaryImage(previews.filter((_, i) => i !== index)[0]);
+      } else {
+        setPrimaryImage("");
       }
     }
+  };
 
-    setPreviews(updatedImages);
-    form.setValue("images", updatedImages);
-    
-    if (form.getValues("image") === currentImages[index] || (typeof currentImages[index] === 'object' && form.getValues("image") === currentImages[index].url)) {
-      const nextImage = updatedImages[0];
-      form.setValue("image", typeof nextImage === 'object' ? nextImage.url : (nextImage || ""));
-    }
+  const onFormSubmit = (data: ProductFormValues) => {
+    onSubmit({
+      ...data,
+      image: primaryImage,
+      fileObjects: files,
+    });
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Basic Info */}
           <FormField
             control={form.control}
             name="name"
@@ -213,18 +177,13 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
                 <Select
                   onValueChange={(value) => {
                     field.onChange(value);
-                    form.setValue("subCategoryId", ""); // Reset subcategory when category changes
+                    form.setValue("subCategoryId", "");
                   }}
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <span className="flex flex-1 text-left text-sm" data-slot="select-value">
-                        {field.value
-                          ? categories.find(c => c.id === field.value)?.name || "Select a category"
-                          : <span className="text-muted-foreground">Select a category</span>
-                        }
-                      </span>
+                      <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -253,12 +212,7 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <span className="flex flex-1 text-left text-sm" data-slot="select-value">
-                        {field.value
-                          ? subCategories.find((s: any) => s.id === field.value)?.name || "Select a sub-category"
-                          : <span className="text-muted-foreground">{hasSubCategories ? "Select a sub-category" : "No sub-categories available"}</span>
-                        }
-                      </span>
+                      <SelectValue placeholder={hasSubCategories ? "Select a sub-category" : "No sub-categories"} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -275,20 +229,17 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
           />
 
           <div className="col-span-full space-y-4">
-            <FormLabel>Product Images </FormLabel>
+            <FormLabel>Product Images</FormLabel>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {previews.map((srcObj, index) => {
-                const src = typeof srcObj === 'string' ? srcObj : srcObj.url;
-                return (
-                  <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
-                    <Image 
-                      src={src || "/assets/placeholder.svg"} 
-                      alt={`Preview ${index}`} 
-                      className="w-full h-full object-cover"
-                      width={200}
-                      height={200}
-                      unoptimized={src?.startsWith('http')}
-                    />
+              {previews.map((src, index) => (
+                <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
+                  <Image
+                    src={src}
+                    alt={`Preview ${index}`}
+                    className="w-full h-full object-cover"
+                    width={200}
+                    height={200}
+                  />
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
@@ -296,30 +247,30 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
                   >
                     <X className="h-4 w-4 text-red-500" />
                   </button>
-                  {(form.getValues("image") === src || form.getValues("image") === srcObj.id) && (
-                    <div className="absolute bottom-0 inset-x-0 bg-brand-primary/90 text-white text-[10px] py-0.5 text-center font-bold">
+                  {primaryImage === src && (
+                    <div className="absolute bottom-0 inset-x-0 bg-brand-primary text-white text-[10px] py-0.5 text-center font-bold">
                       PRIMARY
                     </div>
                   )}
-                  {form.getValues("image") !== src && (
+                  {primaryImage !== src && (
                     <button
                       type="button"
-                      onClick={() => form.setValue("image", src)}
+                      onClick={() => setPrimaryImage(src)}
                       className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity"
                     >
                       SET PRIMARY
                     </button>
                   )}
-                  </div>
-                );
-              })}
+                </div>
+              ))}
+
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 hover:border-brand-primary hover:bg-brand-primary/5 transition-all text-gray-400 hover:text-brand-primary"
               >
                 <Upload className="h-6 w-6" />
-                <span className="text-xs font-medium">Upload (JPG, PNG, JPEG only)</span>
+                <span className="text-xs font-medium">Upload</span>
               </button>
             </div>
             <input
@@ -330,7 +281,6 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
               accept="image/*"
               className="hidden"
             />
-            <FormMessage>{form.formState.errors.image?.message}</FormMessage>
           </div>
 
           <FormField
@@ -346,11 +296,8 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
               </FormItem>
             )}
           />
-
-
         </div>
 
-        {/* Descriptions */}
         <FormField
           control={form.control}
           name="shortDescription"
@@ -383,7 +330,6 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
           )}
         />
 
-        {/* Specifications */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FormField
             control={form.control}
@@ -434,7 +380,7 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
           {isSubmitting ? (
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
           ) : null}
-          Save Product
+          Create Product
         </Button>
       </form>
     </Form>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { fetchCategories, fetchProducts } from "@/lib/api";
+import { fetchCategories, fetchSubCategories, fetchProducts } from "@/lib/api";
 import { notFound } from "next/navigation";
 import { SectionHero } from "@/component/product/SectionHero";
 import { ProductGallery } from "./components/ProductGallery";
@@ -27,18 +27,28 @@ export default function ProductDetailPage({
   useEffect(() => {
     async function loadData() {
       try {
-        const allCategories = await fetchCategories();
-        const foundCategory = allCategories.find((c: any) => c.slug === slug);
+        const [allCategories, allSubCategories, allProducts] = await Promise.all([
+          fetchCategories(),
+          fetchSubCategories(),
+          fetchProducts()
+        ]);
+
+        let foundCategory = allCategories.find((c: any) => c.slug === slug);
+        let foundSubCategory = null;
 
         if (!foundCategory) {
+          foundSubCategory = allSubCategories.find((s: any) => s.slug === slug);
+        }
+
+        if (!foundCategory && !foundSubCategory) {
           setIsLoading(false);
           return;
         }
 
-        const { metadata } = parseMetadata(foundCategory.description);
-        setCategory({ ...foundCategory, ...metadata });
+        const activeCategory = foundCategory || foundSubCategory;
+        const { metadata } = parseMetadata(activeCategory.description);
+        setCategory({ ...activeCategory, ...metadata });
 
-        const allProducts = await fetchProducts();
         const foundProduct = allProducts.find((p: any) => p.slug === productSlug);
 
         if (!foundProduct) {
@@ -48,8 +58,10 @@ export default function ProductDetailPage({
 
         setProduct(foundProduct);
 
-        // Fetch other products in same category for the gallery
-        const filteredProducts = allProducts.filter((p: any) => p.categoryId === foundCategory.id);
+        // Fetch other products in same category/sub-category for the gallery
+        const filteredProducts = allProducts.filter((p: any) => 
+          foundCategory ? p.categoryId === foundCategory.id : p.subCategoryId === foundSubCategory.id
+        );
         setCategoryProducts(filteredProducts);
 
       } catch (error) {

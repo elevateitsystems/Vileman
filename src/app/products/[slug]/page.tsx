@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, use } from "react";
-import { fetchCategories, fetchProducts } from "@/lib/api";
+import { fetchCategories, fetchSubCategories, fetchProducts } from "@/lib/api";
 import { notFound } from "next/navigation";
 import { SectionHero } from "@/component/product/SectionHero";
 import { ProductGrid } from "./components/ProductGrid";
@@ -26,26 +26,45 @@ export default function CategoryPage({
   useEffect(() => {
     async function loadData() {
       try {
-        const allCategories = await fetchCategories();
-        const category = allCategories.find((c: any) => c.slug === slug);
+        const [allCategories, allSubCategories, allProducts] = await Promise.all([
+          fetchCategories(),
+          fetchSubCategories(),
+          fetchProducts()
+        ]);
 
-        if (!category) {
+        let foundCategory = allCategories.find((c: any) => c.slug === slug);
+        let foundSubCategory = null;
+
+        if (!foundCategory) {
+          foundSubCategory = allSubCategories.find((s: any) => s.slug === slug);
+        }
+
+        if (!foundCategory && !foundSubCategory) {
           setIsLoading(false);
           return;
         }
 
-        const { text, metadata } = parseMetadata(category.description);
-        setCategoryData({ ...category, description: text, ...metadata });
+        const activeItem = foundCategory || foundSubCategory;
+        const { text, metadata } = parseMetadata(activeItem.description);
+        setCategoryData({ ...activeItem, description: text, ...metadata });
 
-        // Fetch products for this category
-        const allProducts = await fetchProducts();
-        const filteredProducts = allProducts.filter((p: any) => p.categoryId === category.id);
-        
-        // Check if there are subcategories (not directly supported by fetchCategories response 
-        // if it doesn't nest, but we can check if any category has this one as parent if we had that info)
-        // For now, we'll assume products are what we show.
-        setItems(filteredProducts);
-        setIsSubcategoryPage(false); 
+        if (foundCategory) {
+          // Parent Category: Show all products under this category AND its sub-categories
+          const subIds = allSubCategories
+            .filter((s: any) => s.categoryId === foundCategory.id)
+            .map((s: any) => s.id);
+          
+          const filteredProducts = allProducts.filter((p: any) => 
+            p.categoryId === foundCategory.id || (p.subCategoryId && subIds.includes(p.subCategoryId))
+          );
+          setItems(filteredProducts);
+          setIsSubcategoryPage(false);
+        } else {
+          // Sub-Category: Show only products under this sub-category
+          const filteredProducts = allProducts.filter((p: any) => p.subCategoryId === foundSubCategory.id);
+          setItems(filteredProducts);
+          setIsSubcategoryPage(true);
+        }
       } catch (error) {
         console.error("Failed to load category data:", error);
       } finally {

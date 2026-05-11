@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ProductForm } from "../../components/ProductForm";
+import { CreateProductForm } from "../../components/CreateProductForm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchCategories, createProduct } from "@/lib/api";
+import { fetchCategories, fetchSubCategories, createProduct } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -21,8 +21,19 @@ export default function NewProductPage() {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const data = await fetchCategories();
-        setCategories(data);
+        const [categoriesData, subCategoriesData] = await Promise.all([
+          fetchCategories(),
+          fetchSubCategories()
+        ]);
+        
+        // Nest categories so ProductForm can detect subcategories
+        const topLevel = categoriesData.filter((cat: any) => !cat.categoryId);
+        const nested = topLevel.map((parent: any) => ({
+          ...parent,
+          subcategory: subCategoriesData.filter((sub: any) => sub.categoryId === parent.id)
+        }));
+
+        setCategories(nested);
       } catch (error) {
         console.error("Failed to load categories:", error);
       } finally {
@@ -41,6 +52,9 @@ export default function NewProductPage() {
       formData.append("slug", data.slug);
       formData.append("price", data.price.toString());
       formData.append("categoryId", data.categoryId);
+      if (data.subCategoryId) {
+        formData.append("subCategoryId", data.subCategoryId);
+      }
       formData.append("quantity", (data.quantity || 0).toString());
 
       const descriptionJson = JSON.stringify({
@@ -58,11 +72,19 @@ export default function NewProductPage() {
         });
       }
 
-      await createProduct(token, formData);
+      const response = await createProduct(token, formData);
+      if (response.success === false) {
+        const errorMessage = response.error?.details?.issues?.[0]?.message || response.message || "Failed to create product";
+        toast.error(errorMessage);
+        return;
+      }
+
       toast.success("Product created successfully!");
       router.push("/admin/products");
     } catch (err: any) {
-      toast.error(err.message || "Failed to create product");
+      console.error("Error creating product:", err);
+      const errorMessage = err.error?.details?.issues?.[0]?.message || err.message || "Failed to create product";
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -120,7 +142,7 @@ export default function NewProductPage() {
         </div>
       ) : (
         <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm max-w-4xl">
-          <ProductForm 
+          <CreateProductForm 
             categories={categories} 
             onSubmit={handleAddProduct} 
             isSubmitting={isSubmitting}

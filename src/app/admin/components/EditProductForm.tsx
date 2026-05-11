@@ -11,7 +11,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { categories } from "@/lib/products";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -37,54 +36,47 @@ const productSchema = z.object({
   quantity: z.coerce.number().int().nonnegative().optional(),
 });
 
-export type ProductFormValues = z.infer<typeof productSchema>;
+type ProductFormValues = z.infer<typeof productSchema>;
 
-interface ProductFormProps {
+interface EditProductFormProps {
   categories: any[];
-  initialData?: Partial<ProductFormValues>;
-  onSubmit: (data: ProductFormValues) => void;
+  initialData: any;
+  onSubmit: (data: any) => void;
   isSubmitting?: boolean;
 }
 
-export function ProductForm({ categories, initialData, onSubmit, isSubmitting }: ProductFormProps) {
-  const [previews, setPreviews] = useState<any[]>(initialData?.images || (initialData?.image ? [initialData.image] : []));
-  const [files, setFiles] = useState<File[]>([]);
+export function EditProductForm({ categories, initialData, onSubmit, isSubmitting }: EditProductFormProps) {
+  // We keep track of existing images and newly added files separately
+  const [existingImages, setExistingImages] = useState<any[]>(initialData?.images || []);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [newPreviews, setNewPreviews] = useState<string[]>([]);
   const [deletedImageIds, setDeletedImageIds] = useState<string[]>([]);
+  const [primaryImage, setPrimaryImage] = useState<string>(initialData?.image || (initialData?.images?.[0]?.url || ""));
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as any,
-    defaultValues: initialData || {
-      slug: "",
-      name: "",
-      price: 0,
-      delivery: "",
-      shortDescription: "",
-      description: "",
-      dimensions: "",
-      print: "",
-      paper: "",
-      image: "",
-      images: [],
-      categoryId: "",
-      subCategoryId: "",
-      color: "",
-      quantity: 0,
+    defaultValues: {
+      ...initialData,
+      images: initialData?.images || [],
     },
   });
 
-  // Reset form when initialData is loaded
+  // Synchronize state when initialData changes
   useEffect(() => {
     if (initialData) {
-      form.reset(initialData);
-      const initialImages = initialData.images || (initialData.image ? [initialData.image] : []);
-      setPreviews(initialImages);
+      const initialImages = initialData.images || [];
+      setExistingImages(initialImages);
       
-      // If no primary image is set, set the first one as primary
-      if (!form.getValues("image") && initialImages.length > 0) {
-        const firstImg = initialImages[0];
-        form.setValue("image", typeof firstImg === 'object' ? firstImg.url : firstImg);
-      }
+      // Map primary image: either top-level image field or the first image from the array
+      const initialPrimary = initialData.image || (initialImages[0]?.url || "");
+      setPrimaryImage(initialPrimary);
+
+      form.reset({
+        ...initialData,
+        images: initialImages,
+      });
     }
   }, [initialData, form]);
 
@@ -97,71 +89,65 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
 
-    const newFiles = Array.from(selectedFiles);
-    setFiles((prev) => [...prev, ...newFiles]);
+    const filesArray = Array.from(selectedFiles);
+    setNewFiles((prev) => [...prev, ...filesArray]);
 
-    const newPreviews: string[] = [];
-    const currentImages = form.getValues("images") || [];
-
-    newFiles.forEach((file) => {
+    filesArray.forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const result = reader.result as string;
-        newPreviews.push(result);
-        if (newPreviews.length === newFiles.length) {
-          const updatedImages = [...currentImages, ...newPreviews];
-          setPreviews(updatedImages);
-          form.setValue("images", updatedImages);
-          if (!form.getValues("image")) {
-            form.setValue("image", updatedImages[0]);
-          }
-        }
+        setNewPreviews((prev) => [...prev, reader.result as string]);
       };
       reader.readAsDataURL(file);
     });
   };
 
-  const onFormSubmit = (data: ProductFormValues) => {
-    onSubmit({ ...data, fileObjects: files, deleteimageIds: deletedImageIds } as any);
-  };
-
-  const removeImage = (index: number) => {
-    const currentImages = form.getValues("images") || [];
-    const updatedImages = currentImages.filter((_, i) => i !== index);
+  const removeExistingImage = (id: string, index: number) => {
+    const imgToRemove = existingImages[index];
+    setDeletedImageIds((prev) => [...prev, id]);
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
     
-    // Also remove from files state if it was a newly added file
-    const initialCount = (initialData?.images?.length || (initialData?.image ? 1 : 0));
-    if (index >= initialCount) {
-      const fileIndex = index - initialCount;
-      setFiles(prev => prev.filter((_, i) => i !== fileIndex));
-    } else {
-      // It's an initial image, track its ID if it has one
-      const imageToRemove = previews[index];
-      if (imageToRemove && typeof imageToRemove === 'object' && imageToRemove.id) {
-        setDeletedImageIds(prev => [...prev, imageToRemove.id]);
-      } else if (imageToRemove && typeof imageToRemove === 'string' && initialData?.images?.[index] && typeof initialData.images[index] === 'object') {
-        // Fallback check if previews are strings but original data had objects
-        const originalImage = initialData.images[index] as any;
-        if (originalImage.id) {
-          setDeletedImageIds(prev => [...prev, originalImage.id]);
-        }
+    // If the removed image was primary, pick the next available one
+    if (primaryImage === imgToRemove.url) {
+      const nextExisting = existingImages.find((_, i) => i !== index);
+      if (nextExisting) {
+        setPrimaryImage(nextExisting.url);
+      } else if (newPreviews.length > 0) {
+        setPrimaryImage(newPreviews[0]);
+      } else {
+        setPrimaryImage("");
       }
     }
+  };
 
-    setPreviews(updatedImages);
-    form.setValue("images", updatedImages);
-    
-    if (form.getValues("image") === currentImages[index] || (typeof currentImages[index] === 'object' && form.getValues("image") === currentImages[index].url)) {
-      const nextImage = updatedImages[0];
-      form.setValue("image", typeof nextImage === 'object' ? nextImage.url : (nextImage || ""));
+  const removeNewImage = (index: number) => {
+    const previewToRemove = newPreviews[index];
+    setNewPreviews((prev) => prev.filter((_, i) => i !== index));
+    setNewFiles((prev) => prev.filter((_, i) => i !== index));
+
+    if (primaryImage === previewToRemove) {
+      if (existingImages.length > 0) {
+        setPrimaryImage(existingImages[0].url);
+      } else if (newPreviews.length > 1) {
+        setPrimaryImage(newPreviews.filter((_, i) => i !== index)[0]);
+      } else {
+        setPrimaryImage("");
+      }
     }
+  };
+
+  const onFormSubmit = (data: ProductFormValues) => {
+    onSubmit({
+      ...data,
+      image: primaryImage,
+      fileObjects: newFiles,
+      deleteimageIds: deletedImageIds,
+    });
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Basic Info */}
           <FormField
             control={form.control}
             name="name"
@@ -213,18 +199,18 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
                 <Select
                   onValueChange={(value) => {
                     field.onChange(value);
-                    form.setValue("subCategoryId", ""); // Reset subcategory when category changes
+                    form.setValue("subCategoryId", "");
                   }}
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <span className="flex flex-1 text-left text-sm" data-slot="select-value">
-                        {field.value
-                          ? categories.find(c => c.id === field.value)?.name || "Select a category"
-                          : <span className="text-muted-foreground">Select a category</span>
+                      <SelectValue placeholder="Select a category">
+                        {field.value 
+                          ? categories.find(c => c.id === field.value)?.name 
+                          : "Select a category"
                         }
-                      </span>
+                      </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -248,17 +234,17 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
                 <FormLabel>Sub Category</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                   disabled={!hasSubCategories}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-full">
-                      <span className="flex flex-1 text-left text-sm" data-slot="select-value">
-                        {field.value
-                          ? subCategories.find((s: any) => s.id === field.value)?.name || "Select a sub-category"
-                          : <span className="text-muted-foreground">{hasSubCategories ? "Select a sub-category" : "No sub-categories available"}</span>
+                    <SelectTrigger className="w-full" >
+                      <SelectValue placeholder={hasSubCategories ? "Select a sub-category" : "No sub-categories"}>
+                        {field.value 
+                          ? subCategories.find((s: any) => s.id === field.value)?.name 
+                          : (hasSubCategories ? "Select a sub-category" : "No sub-categories")
                         }
-                      </span>
+                      </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -275,51 +261,61 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
           />
 
           <div className="col-span-full space-y-4">
-            <FormLabel>Product Images </FormLabel>
+            <FormLabel>Product Images</FormLabel>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {previews.map((srcObj, index) => {
-                const src = typeof srcObj === 'string' ? srcObj : srcObj.url;
-                return (
-                  <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
-                    <Image 
-                      src={src || "/assets/placeholder.svg"} 
-                      alt={`Preview ${index}`} 
-                      className="w-full h-full object-cover"
-                      width={200}
-                      height={200}
-                      unoptimized={src?.startsWith('http')}
-                    />
+              {/* Existing Images */}
+              {existingImages.map((img, index) => (
+                <ExistingImagePreview
+                  key={img.id}
+                  img={img}
+                  index={index}
+                  primaryImage={primaryImage}
+                  setPrimaryImage={setPrimaryImage}
+                  removeExistingImage={removeExistingImage}
+                />
+              ))}
+
+              {/* New Previews */}
+              {newPreviews.map((src, index) => (
+                <div key={`new-${index}`} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
+                  <Image
+                    src={src}
+                    alt={`New Preview ${index}`}
+                    className="w-full h-full object-contain"
+                    width={200}
+                    height={200}
+                  />
                   <button
                     type="button"
-                    onClick={() => removeImage(index)}
+                    onClick={() => removeNewImage(index)}
                     className="absolute top-1 right-1 p-1 bg-white/80 backdrop-blur-sm rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <X className="h-4 w-4 text-red-500" />
                   </button>
-                  {(form.getValues("image") === src || form.getValues("image") === srcObj.id) && (
-                    <div className="absolute bottom-0 inset-x-0 bg-brand-primary/90 text-white text-[10px] py-0.5 text-center font-bold">
+                  {primaryImage === src && (
+                    <div className="absolute bottom-0 inset-x-0 bg-brand-primary text-white text-[10px] py-0.5 text-center font-bold">
                       PRIMARY
                     </div>
                   )}
-                  {form.getValues("image") !== src && (
+                  {primaryImage !== src && (
                     <button
                       type="button"
-                      onClick={() => form.setValue("image", src)}
+                      onClick={() => setPrimaryImage(src)}
                       className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity"
                     >
                       SET PRIMARY
                     </button>
                   )}
-                  </div>
-                );
-              })}
+                </div>
+              ))}
+
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 className="aspect-square rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 hover:border-brand-primary hover:bg-brand-primary/5 transition-all text-gray-400 hover:text-brand-primary"
               >
                 <Upload className="h-6 w-6" />
-                <span className="text-xs font-medium">Upload (JPG, PNG, JPEG only)</span>
+                <span className="text-xs font-medium">Upload</span>
               </button>
             </div>
             <input
@@ -330,7 +326,6 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
               accept="image/*"
               className="hidden"
             />
-            <FormMessage>{form.formState.errors.image?.message}</FormMessage>
           </div>
 
           <FormField
@@ -346,11 +341,8 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
               </FormItem>
             )}
           />
-
-
         </div>
 
-        {/* Descriptions */}
         <FormField
           control={form.control}
           name="shortDescription"
@@ -383,7 +375,6 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
           )}
         />
 
-        {/* Specifications */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <FormField
             control={form.control}
@@ -434,9 +425,48 @@ export function ProductForm({ categories, initialData, onSubmit, isSubmitting }:
           {isSubmitting ? (
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
           ) : null}
-          Save Product
+          Update Product
         </Button>
       </form>
     </Form>
+  );
+}
+
+function ExistingImagePreview({ img, index, primaryImage, setPrimaryImage, removeExistingImage }: any) {
+  const [src, setSrc] = useState(img.url || "/assets/placeholder.svg");
+
+  return (
+    <div className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
+      <Image
+        src={src}
+        alt={`Product ${index}`}
+        className="w-full h-full object-contain"
+        width={200}
+        height={200}
+        unoptimized={src.startsWith("http")}
+        onError={() => setSrc("/assets/placeholder.svg")}
+      />
+      <button
+        type="button"
+        onClick={() => removeExistingImage(img.id, index)}
+        className="absolute top-1 right-1 p-1 bg-white/80 backdrop-blur-sm rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <X className="h-4 w-4 text-red-500" />
+      </button>
+      {primaryImage === img.url && (
+        <div className="absolute bottom-0 inset-x-0 bg-brand-primary text-white text-[10px] py-0.5 text-center font-bold">
+          PRIMARY
+        </div>
+      )}
+      {primaryImage !== img.url && (
+        <button
+          type="button"
+          onClick={() => setPrimaryImage(img.url)}
+          className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity"
+        >
+          SET PRIMARY
+        </button>
+      )}
+    </div>
   );
 }

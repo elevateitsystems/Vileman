@@ -194,7 +194,7 @@ export async function fetchCategories() {
   const res = await fetch(url);
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || "Failed to fetch categories");
-  return json.data;
+  return (json.data || []).filter((cat: any) => !cat.isDeleted);
 }
 
 export async function fetchCategoryById(id: string) {
@@ -271,7 +271,7 @@ export async function fetchSubCategories() {
   const res = await fetch(url);
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || "Failed to fetch sub-categories");
-  return json.data;
+  return (json.data || []).filter((sub: any) => !sub.isDeleted);
 }
 
 export async function createSubCategory(token: string, data: { name: string; description: string; categoryId: string }) {
@@ -306,6 +306,14 @@ export async function fetchProductBySlug(slug: string) {
   return json.data;
 }
 
+export async function fetchProductById(id: string) {
+  const url = `${BACKEND_URL}/products/${id}`;
+  const res = await fetch(url);
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Failed to fetch product");
+  return json.data;
+}
+
 export async function createProduct(token: string, data: any) {
   const url = `${BACKEND_URL}/products`;
   
@@ -320,8 +328,8 @@ export async function createProduct(token: string, data: any) {
     body: isFormData ? data : JSON.stringify(data),
   });
   const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to create product");
-  return json.data;
+  if (!res.ok) throw json;
+  return json;
 }
 
 export async function updateProduct(token: string, id: string, data: any) {
@@ -338,8 +346,8 @@ export async function updateProduct(token: string, id: string, data: any) {
     body: isFormData ? data : JSON.stringify(data),
   });
   const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to update product");
-  return json.data;
+  if (!res.ok) throw json;
+  return json;
 }
 
 export async function deleteProduct(token: string, id: string) {

@@ -10,12 +10,11 @@ import {
   ExternalLink,
   Power,
   PowerOff,
+  Edit,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { toast } from "react-toastify";
 import {
   Table,
   TableBody,
@@ -33,7 +32,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
+import Link from "next/link";
+import { toast } from "react-toastify";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,9 +44,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ProductDetails } from "../components/ProductDetails";
-import Image from "next/image";
 import { cn, parseMetadata } from "@/lib/utils";
+import Image from "next/image";
 
 export default function ProductsPage() {
   const { token } = useAuth();
@@ -183,7 +182,7 @@ export default function ProductsPage() {
                 const images = product.images || [];
                 const displayImage = images.length > 0 
                   ? (typeof images[0] === 'string' ? images[0] : images[0].url)
-                  : (metadata.image || product.image || "");
+                  : (metadata.image || product.image || "/assets/placeholder.svg");
                 
                 return (
                   <TableRow
@@ -193,7 +192,7 @@ export default function ProductsPage() {
                     <TableCell>
                       <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
                         <Image
-                          src={displayImage}
+                          src={displayImage || "/assets/placeholder.svg"}
                           alt={product.name}
                           className="w-full h-full object-cover"
                           width={100}
@@ -221,6 +220,15 @@ export default function ProductsPage() {
                     <TableCell>{product.quantity || 0}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Link href={`/admin/products/${product.slug}/edit/${product.id}`}>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="h-8 w-8 p-0 border-gray-200 text-blue-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </Link>
                         <Button 
                           variant="outline" 
                           size="sm"
@@ -271,8 +279,6 @@ export default function ProductsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-
     </div>
   );
 }
