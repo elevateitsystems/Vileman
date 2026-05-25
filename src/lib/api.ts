@@ -407,3 +407,23 @@ export async function uploadImage(file: File) {
   // Assuming the backend returns the image object with url and publicId in json.data
   return json.data;
 }
+
+export async function fetchOrders(token: string, params: { page?: number; limit?: number } = {}) {
+  const { page = 1, limit = 10 } = params;
+  const searchParams = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  const url = `${BACKEND_URL}/order?${searchParams.toString()}`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Failed to fetch orders");
+  // return the whole json so we get meta (pagination) and data
+  return json;
+}

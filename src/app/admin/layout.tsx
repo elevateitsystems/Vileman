@@ -9,7 +9,8 @@ import {
   Settings, 
   LayoutDashboard,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  ShoppingCart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +26,11 @@ const sidebarItems = [
     name: "Categories",
     href: "/admin/categories",
     icon: Layers
+  },
+  {
+    name: "Order Management",
+    href: "/admin/orders",
+    icon: ShoppingCart
   },
   {
     name: "Admin Management",
