@@ -368,7 +368,15 @@ export async function createCheckoutSession(data: {
   customerEmail: string;
   customerPhone: string;
   shippingCountry: string;
-  products: { productId: string; quantity: number }[];
+  products: {
+    productId: string;
+    quantity: number;
+    customization?: {
+      selections?: Record<string, string>;
+      comment?: string;
+      images?: { url: string; publicId: string }[];
+    };
+  }[];
 }) {
   const url = `${BACKEND_URL}/order/checkout`;
   const res = await fetch(url, {
@@ -380,5 +388,22 @@ export async function createCheckoutSession(data: {
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || "Failed to create checkout session");
+  return json.data;
+}
+
+export async function uploadImage(file: File) {
+  const url = `${BACKEND_URL}/images`;
+  const formData = new FormData();
+  // using "images" as standard key, modify if it's different in postman
+  formData.append("images", file);
+
+  const res = await fetch(url, {
+    method: "POST",
+    body: formData,
+  });
+  
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || "Failed to upload image");
+  // Assuming the backend returns the image object with url and publicId in json.data
   return json.data;
 }

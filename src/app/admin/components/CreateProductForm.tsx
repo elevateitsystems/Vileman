@@ -8,7 +8,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -73,8 +72,10 @@ export function CreateProductForm({ categories, onSubmit, isSubmitting }: Create
   });
 
   const selectedCategoryId = form.watch("categoryId");
+  const selectedSubCategoryId = form.watch("subCategoryId");
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
   const subCategories = selectedCategory?.subcategory || [];
+  const selectedSubCategory = subCategories.find((sub: any) => sub.id === selectedSubCategoryId);
   const hasSubCategories = subCategories.length > 0;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -179,11 +180,17 @@ export function CreateProductForm({ categories, onSubmit, isSubmitting }: Create
                     field.onChange(value);
                     form.setValue("subCategoryId", "");
                   }}
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select a category" />
+                      <span className="flex flex-1 text-left text-sm" data-slot="select-value">
+                        {field.value ? (
+                          selectedCategory?.name || "Select a category"
+                        ) : (
+                          <span className="text-muted-foreground">Select a category</span>
+                        )}
+                      </span>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -207,12 +214,20 @@ export function CreateProductForm({ categories, onSubmit, isSubmitting }: Create
                 <FormLabel>Sub Category</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                   disabled={!hasSubCategories}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder={hasSubCategories ? "Select a sub-category" : "No sub-categories"} />
+                      <span className="flex flex-1 text-left text-sm" data-slot="select-value">
+                        {field.value ? (
+                          selectedSubCategory?.name || "Select a sub-category"
+                        ) : (
+                          <span className="text-muted-foreground">
+                            {hasSubCategories ? "Select a sub-category" : "No sub-categories"}
+                          </span>
+                        )}
+                      </span>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
