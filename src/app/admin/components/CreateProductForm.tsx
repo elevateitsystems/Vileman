@@ -1,8 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -33,6 +41,7 @@ const productSchema = z.object({
   subCategoryId: z.string().optional(),
   color: z.string().optional(),
   quantity: z.coerce.number().int().nonnegative().optional(),
+  isCustomizable: z.boolean().default(false),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -43,11 +52,15 @@ interface CreateProductFormProps {
   isSubmitting?: boolean;
 }
 
-export function CreateProductForm({ categories, onSubmit, isSubmitting }: CreateProductFormProps) {
+export function CreateProductForm({
+  categories,
+  onSubmit,
+  isSubmitting,
+}: CreateProductFormProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [primaryImage, setPrimaryImage] = useState<string>("");
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProductFormValues>({
@@ -68,6 +81,7 @@ export function CreateProductForm({ categories, onSubmit, isSubmitting }: Create
       subCategoryId: "",
       color: "",
       quantity: 0,
+      isCustomizable: false,
     },
   });
 
@@ -75,7 +89,9 @@ export function CreateProductForm({ categories, onSubmit, isSubmitting }: Create
   const selectedSubCategoryId = form.watch("subCategoryId");
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
   const subCategories = selectedCategory?.subcategory || [];
-  const selectedSubCategory = subCategories.find((sub: any) => sub.id === selectedSubCategoryId);
+  const selectedSubCategory = subCategories.find(
+    (sub: any) => sub.id === selectedSubCategoryId,
+  );
   const hasSubCategories = subCategories.length > 0;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,11 +200,16 @@ export function CreateProductForm({ categories, onSubmit, isSubmitting }: Create
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <span className="flex flex-1 text-left text-sm" data-slot="select-value">
+                      <span
+                        className="flex flex-1 text-left text-sm"
+                        data-slot="select-value"
+                      >
                         {field.value ? (
                           selectedCategory?.name || "Select a category"
                         ) : (
-                          <span className="text-muted-foreground">Select a category</span>
+                          <span className="text-muted-foreground">
+                            Select a category
+                          </span>
                         )}
                       </span>
                     </SelectTrigger>
@@ -219,12 +240,17 @@ export function CreateProductForm({ categories, onSubmit, isSubmitting }: Create
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <span className="flex flex-1 text-left text-sm" data-slot="select-value">
+                      <span
+                        className="flex flex-1 text-left text-sm"
+                        data-slot="select-value"
+                      >
                         {field.value ? (
                           selectedSubCategory?.name || "Select a sub-category"
                         ) : (
                           <span className="text-muted-foreground">
-                            {hasSubCategories ? "Select a sub-category" : "No sub-categories"}
+                            {hasSubCategories
+                              ? "Select a sub-category"
+                              : "No sub-categories"}
                           </span>
                         )}
                       </span>
@@ -247,7 +273,10 @@ export function CreateProductForm({ categories, onSubmit, isSubmitting }: Create
             <FormLabel>Product Images</FormLabel>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {previews.map((src, index) => (
-                <div key={index} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
+                <div
+                  key={index}
+                  className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group"
+                >
                   <Image
                     src={src}
                     alt={`Preview ${index}`}
@@ -308,6 +337,27 @@ export function CreateProductForm({ categories, onSubmit, isSubmitting }: Create
                   <Input type="number" {...field} />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="isCustomizable"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-1">
+                  <FormLabel>Customizable Product</FormLabel>
+                  <p className="text-sm text-muted-foreground">
+                    Allow customers to customize this product.
+                  </p>
+                </div>
+
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />

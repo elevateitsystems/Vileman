@@ -1,39 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { fetchProducts, updateProduct, deleteProduct } from "@/lib/api";
-import { useAuth } from "@/hooks/useAuth";
-import {
-  Plus,
-  Search,
-  Trash2,
-  ExternalLink,
-  Power,
-  PowerOff,
-  Edit,
-} from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Link from "next/link";
-import { toast } from "react-toastify";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,8 +10,30 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useAuth } from "@/hooks/useAuth";
+import { deleteProduct, fetchProducts, updateProduct } from "@/lib/api";
 import { cn, parseMetadata } from "@/lib/utils";
+import {
+  Edit,
+  Plus,
+  Search,
+  Trash2
+} from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 export default function ProductsPage() {
   const { token } = useAuth();
@@ -220,7 +208,7 @@ export default function ProductsPage() {
                     <TableCell>{product.quantity || 0}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Link href={`/admin/products/${product.slug}/edit/${product.id}`}>
+                        {/* <Link href={`/admin/products/${product.slug}/edit/${product.id}`}>
                           <Button 
                             variant="outline" 
                             size="sm"
@@ -228,7 +216,7 @@ export default function ProductsPage() {
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                        </Link>
+                        </Link> */}
                         <Button 
                           variant="outline" 
                           size="sm"

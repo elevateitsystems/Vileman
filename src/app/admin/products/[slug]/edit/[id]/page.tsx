@@ -6,17 +6,26 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchProductById, fetchCategories, fetchSubCategories, updateProduct } from "@/lib/api";
+import {
+  fetchProductById,
+  fetchCategories,
+  fetchSubCategories,
+  updateProduct,
+} from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { parseMetadata } from "@/lib/utils";
 import { toast } from "react-toastify";
 
-export default function EditProductPage({ params }: { params: Promise<{ slug: string, id: string }> }) {
+export default function EditProductPage({
+  params,
+}: {
+  params: Promise<{ slug: string; id: string }>;
+}) {
   const resolvedParams = use(params);
   const { token } = useAuth();
   const router = useRouter();
-  
+
   const [product, setProduct] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,15 +38,17 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
         const [prodData, catsData, subCatsData] = await Promise.all([
           fetchProductById(resolvedParams.id),
           fetchCategories(),
-          fetchSubCategories()
+          fetchSubCategories(),
         ]);
         const { text, metadata } = parseMetadata(prodData.description);
-        
+
         // Nest categories so EditProductForm can detect subcategories
         const topLevel = catsData.filter((cat: any) => !cat.categoryId);
         const nested = topLevel.map((parent: any) => ({
           ...parent,
-          subcategory: subCatsData.filter((sub: any) => sub.categoryId === parent.id)
+          subcategory: subCatsData.filter(
+            (sub: any) => sub.categoryId === parent.id,
+          ),
         }));
 
         // Map backend data back to form values
@@ -47,7 +58,8 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
           description: text || prodData.description,
           categoryId: prodData.categoryId,
           subCategoryId: prodData.subCategoryId || "",
-          price: parseFloat(prodData.price)
+          price: parseFloat(prodData.price),
+          isCustomizable: prodData.isCustomizable ?? false,
         };
 
         setProduct(formInitialData);
@@ -74,13 +86,14 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
         formData.append("subCategoryId", data.subCategoryId);
       }
       formData.append("quantity", (data.quantity || 0).toString());
+      formData.append("isCustomizable", String(data.isCustomizable ?? false));
 
       const descriptionJson = JSON.stringify({
         text: data.description,
         shortDescription: data.shortDescription,
         dimensions: data.dimensions,
         print: data.print,
-        paper: data.paper
+        paper: data.paper,
       });
       formData.append("description", descriptionJson);
 
@@ -98,7 +111,10 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
 
       const response = await updateProduct(token, product.id, formData);
       if (response.success === false) {
-        const errorMessage = response.error?.details?.issues?.[0]?.message || response.message || "Failed to update product";
+        const errorMessage =
+          response.error?.details?.issues?.[0]?.message ||
+          response.message ||
+          "Failed to update product";
         toast.error(errorMessage);
         return;
       }
@@ -107,7 +123,10 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
       router.push("/admin/products");
     } catch (err: any) {
       console.error("Error updating product:", err);
-      const errorMessage = err.error?.details?.issues?.[0]?.message || err.message || "Failed to update product";
+      const errorMessage =
+        err.error?.details?.issues?.[0]?.message ||
+        err.message ||
+        "Failed to update product";
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -123,8 +142,12 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
           </Button>
         </Link>
         <div>
-          <h1 className="text-[28px] font-bold text-brand-primary">Edit Product</h1>
-          <p className="text-gray-500">Modify the details for "{product?.name || "..."}".</p>
+          <h1 className="text-[28px] font-bold text-brand-primary">
+            Edit Product
+          </h1>
+          <p className="text-gray-500">
+            Modify the details for "{product?.name || "..."}".
+          </p>
         </div>
       </div>
 
@@ -166,10 +189,10 @@ export default function EditProductPage({ params }: { params: Promise<{ slug: st
         </div>
       ) : (
         <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm max-w-4xl">
-          <EditProductForm 
+          <EditProductForm
             categories={categories}
-            initialData={product} 
-            onSubmit={handleUpdateProduct} 
+            initialData={product}
+            onSubmit={handleUpdateProduct}
             isSubmitting={isSubmitting}
           />
         </div>

@@ -1,8 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -34,6 +42,7 @@ const productSchema = z.object({
   subCategoryId: z.string().optional(),
   color: z.string().optional(),
   quantity: z.coerce.number().int().nonnegative().optional(),
+  isCustomizable: z.boolean().default(false),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -45,14 +54,23 @@ interface EditProductFormProps {
   isSubmitting?: boolean;
 }
 
-export function EditProductForm({ categories, initialData, onSubmit, isSubmitting }: EditProductFormProps) {
+export function EditProductForm({
+  categories,
+  initialData,
+  onSubmit,
+  isSubmitting,
+}: EditProductFormProps) {
   // We keep track of existing images and newly added files separately
-  const [existingImages, setExistingImages] = useState<any[]>(initialData?.images || []);
+  const [existingImages, setExistingImages] = useState<any[]>(
+    initialData?.images || [],
+  );
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [newPreviews, setNewPreviews] = useState<string[]>([]);
   const [deletedImageIds, setDeletedImageIds] = useState<string[]>([]);
-  const [primaryImage, setPrimaryImage] = useState<string>(initialData?.image || (initialData?.images?.[0]?.url || ""));
-  
+  const [primaryImage, setPrimaryImage] = useState<string>(
+    initialData?.image || initialData?.images?.[0]?.url || "",
+  );
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ProductFormValues>({
@@ -68,9 +86,9 @@ export function EditProductForm({ categories, initialData, onSubmit, isSubmittin
     if (initialData) {
       const initialImages = initialData.images || [];
       setExistingImages(initialImages);
-      
+
       // Map primary image: either top-level image field or the first image from the array
-      const initialPrimary = initialData.image || (initialImages[0]?.url || "");
+      const initialPrimary = initialData.image || initialImages[0]?.url || "";
       setPrimaryImage(initialPrimary);
 
       form.reset({
@@ -105,7 +123,7 @@ export function EditProductForm({ categories, initialData, onSubmit, isSubmittin
     const imgToRemove = existingImages[index];
     setDeletedImageIds((prev) => [...prev, id]);
     setExistingImages((prev) => prev.filter((_, i) => i !== index));
-    
+
     // If the removed image was primary, pick the next available one
     if (primaryImage === imgToRemove.url) {
       const nextExisting = existingImages.find((_, i) => i !== index);
@@ -206,10 +224,9 @@ export function EditProductForm({ categories, initialData, onSubmit, isSubmittin
                   <FormControl>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select a category">
-                        {field.value 
-                          ? categories.find(c => c.id === field.value)?.name 
-                          : "Select a category"
-                        }
+                        {field.value
+                          ? categories.find((c) => c.id === field.value)?.name
+                          : "Select a category"}
                       </SelectValue>
                     </SelectTrigger>
                   </FormControl>
@@ -238,12 +255,20 @@ export function EditProductForm({ categories, initialData, onSubmit, isSubmittin
                   disabled={!hasSubCategories}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-full" >
-                      <SelectValue placeholder={hasSubCategories ? "Select a sub-category" : "No sub-categories"}>
-                        {field.value 
-                          ? subCategories.find((s: any) => s.id === field.value)?.name 
-                          : (hasSubCategories ? "Select a sub-category" : "No sub-categories")
+                    <SelectTrigger className="w-full">
+                      <SelectValue
+                        placeholder={
+                          hasSubCategories
+                            ? "Select a sub-category"
+                            : "No sub-categories"
                         }
+                      >
+                        {field.value
+                          ? subCategories.find((s: any) => s.id === field.value)
+                              ?.name
+                          : hasSubCategories
+                            ? "Select a sub-category"
+                            : "No sub-categories"}
                       </SelectValue>
                     </SelectTrigger>
                   </FormControl>
@@ -277,7 +302,10 @@ export function EditProductForm({ categories, initialData, onSubmit, isSubmittin
 
               {/* New Previews */}
               {newPreviews.map((src, index) => (
-                <div key={`new-${index}`} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
+                <div
+                  key={`new-${index}`}
+                  className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group"
+                >
                   <Image
                     src={src}
                     alt={`New Preview ${index}`}
@@ -338,6 +366,28 @@ export function EditProductForm({ categories, initialData, onSubmit, isSubmittin
                   <Input type="number" {...field} />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="isCustomizable"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-1">
+                  <FormLabel>Customizable Product</FormLabel>
+                  <p className="text-sm text-muted-foreground">
+                    Allow customers to customize this product.
+                  </p>
+                </div>
+
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
               </FormItem>
             )}
           />
@@ -432,7 +482,13 @@ export function EditProductForm({ categories, initialData, onSubmit, isSubmittin
   );
 }
 
-function ExistingImagePreview({ img, index, primaryImage, setPrimaryImage, removeExistingImage }: any) {
+function ExistingImagePreview({
+  img,
+  index,
+  primaryImage,
+  setPrimaryImage,
+  removeExistingImage,
+}: any) {
   const [src, setSrc] = useState(img.url || "/assets/placeholder.svg");
 
   return (

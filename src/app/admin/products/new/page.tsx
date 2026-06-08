@@ -23,14 +23,16 @@ export default function NewProductPage() {
       try {
         const [categoriesData, subCategoriesData] = await Promise.all([
           fetchCategories(),
-          fetchSubCategories()
+          fetchSubCategories(),
         ]);
-        
+
         // Nest categories so ProductForm can detect subcategories
         const topLevel = categoriesData.filter((cat: any) => !cat.categoryId);
         const nested = topLevel.map((parent: any) => ({
           ...parent,
-          subcategory: subCategoriesData.filter((sub: any) => sub.categoryId === parent.id)
+          subcategory: subCategoriesData.filter(
+            (sub: any) => sub.categoryId === parent.id,
+          ),
         }));
 
         setCategories(nested);
@@ -56,13 +58,14 @@ export default function NewProductPage() {
         formData.append("subCategoryId", data.subCategoryId);
       }
       formData.append("quantity", (data.quantity || 0).toString());
+      formData.append("isCustomizable", String(data.isCustomizable ?? false));
 
       const descriptionJson = JSON.stringify({
         text: data.description,
         shortDescription: data.shortDescription,
         dimensions: data.dimensions,
         print: data.print,
-        paper: data.paper
+        paper: data.paper,
       });
       formData.append("description", descriptionJson);
 
@@ -74,7 +77,10 @@ export default function NewProductPage() {
 
       const response = await createProduct(token, formData);
       if (response.success === false) {
-        const errorMessage = response.error?.details?.issues?.[0]?.message || response.message || "Failed to create product";
+        const errorMessage =
+          response.error?.details?.issues?.[0]?.message ||
+          response.message ||
+          "Failed to create product";
         toast.error(errorMessage);
         return;
       }
@@ -83,7 +89,10 @@ export default function NewProductPage() {
       router.push("/admin/products");
     } catch (err: any) {
       console.error("Error creating product:", err);
-      const errorMessage = err.error?.details?.issues?.[0]?.message || err.message || "Failed to create product";
+      const errorMessage =
+        err.error?.details?.issues?.[0]?.message ||
+        err.message ||
+        "Failed to create product";
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -99,8 +108,12 @@ export default function NewProductPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-[28px] font-bold text-brand-primary">Add New Product</h1>
-          <p className="text-gray-500">Create a new product listing in your catalog.</p>
+          <h1 className="text-[28px] font-bold text-brand-primary">
+            Add New Product
+          </h1>
+          <p className="text-gray-500">
+            Create a new product listing in your catalog.
+          </p>
         </div>
       </div>
 
@@ -142,9 +155,9 @@ export default function NewProductPage() {
         </div>
       ) : (
         <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm max-w-4xl">
-          <CreateProductForm 
-            categories={categories} 
-            onSubmit={handleAddProduct} 
+          <CreateProductForm
+            categories={categories}
+            onSubmit={handleAddProduct}
             isSubmitting={isSubmitting}
           />
         </div>
