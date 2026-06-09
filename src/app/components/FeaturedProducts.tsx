@@ -1,3 +1,4 @@
+// featuredProduct.tsx
 "use client";
 
 import ProductBox from "@/component/product/ProductBox";
@@ -10,6 +11,7 @@ interface FeaturedProduct {
   price: number;
   description: string;
   slug: string;
+  isCustomizable: boolean;
 }
 
 interface FeaturedProductsProps {

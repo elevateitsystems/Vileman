@@ -1,3 +1,4 @@
+// ProductBox.tsx
 "use client";
 
 import { ProductCardHorizontal } from "./components/ProductCardHorizontal";
@@ -23,6 +24,7 @@ export interface ProductBoxProps {
   delivery?: string;
   slug?: string;
   priority?: boolean;
+  isCustomizable: boolean;
 }
 
 const ProductBox = ({
@@ -44,6 +46,7 @@ const ProductBox = ({
   delivery,
   slug,
   priority = false,
+  isCustomizable,
 }: ProductBoxProps) => {
   // Construct product object for children
   const product: Product = {
@@ -60,13 +63,22 @@ const ProductBox = ({
     delivery: delivery || "",
     category: "",
     color,
+    isCustomizable,
   };
 
   if (layout === "horizontal") {
-    return <ProductCardHorizontal product={product} href={href} priority={priority} />;
+    return (
+      <ProductCardHorizontal
+        product={product}
+        href={href}
+        priority={priority}
+      />
+    );
   }
 
-  return <ProductCardVertical product={product} href={href} priority={priority} />;
+  return (
+    <ProductCardVertical product={product} href={href} priority={priority} />
+  );
 };
 
 export default ProductBox;

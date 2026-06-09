@@ -1,60 +1,52 @@
+//page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import placeholderImg from "@/assets/placeholder.svg";
 import SectionHero from "@/component/layout/SectionHero";
-import { fetchProducts, fetchCategories } from "@/lib/api";
+import { Skeleton } from "@/components/ui/skeleton";
+import { fetchCategories, fetchProducts } from "@/lib/api";
+import { useEffect, useState } from "react";
 import { FeaturedProducts } from "./components/FeaturedProducts";
 import { PhotoGrid } from "./components/PhotoGrid";
-import { Skeleton } from "@/components/ui/skeleton";
-import { parseMetadata } from "@/lib/utils";
-import placeholderImg from "@/assets/placeholder.svg";
 
 export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [productsData, categoriesData] = await Promise.all([
-          fetchProducts(),
-          fetchCategories()
-        ]);
-        
-        // Map backend products to what FeaturedProducts expects
-        const mapped = productsData.slice(0, 4).map((p: any) => {
-          const category = categoriesData.find((c: any) => c.id === p.categoryId);
-          const categorySlug = category ? category.slug : "all";
-          const { text, metadata } = parseMetadata(p.description);
-          
-          const images = p.images || [];
-          const imageSrc = images.length > 0 
-            ? (typeof images[0] === 'string' ? images[0] : images[0].url)
-            : (metadata.image || p.image || placeholderImg);
-          
-          return {
-            id: p.id,
-            _id: p._id,
-            productId: p.productId,
-            uuid: p.uuid,
-            href: `/products/${categorySlug}/${p.slug}`,
-            imageSrc,
-            name: p.name,
-            price: parseFloat(p.price) || 0,
-            description: text || p.description,
-            shortDescription: metadata.shortDescription || p.shortDescription,
-            slug: p.slug,
-          };
-        });
-        setProducts(mapped);
-      } catch (error) {
-        console.error("Failed to load products:", error);
-      } finally {
-        setIsLoading(false);
-      }
+// home page
+useEffect(() => {
+  async function loadData() {
+    try {
+      const [productsData, categoriesData] = await Promise.all([
+        fetchProducts(),
+        fetchCategories(),
+      ]);
+
+      const categoryMap = Object.fromEntries(
+        categoriesData.map((c: any) => [c.id, c])
+      );
+
+      const mapped = productsData.slice(0, 4).map((p: any) => {
+        const categorySlug = categoryMap[p.categoryId]?.slug ?? "all";
+        const imageSrc = p.images?.[0]?.url ?? (placeholderImg as any).src;
+
+        return {
+          ...p,                                          // keep everything (isCustomizable, colors, etc.)
+          href: `/products/${categorySlug}/${p.slug}`,
+          imageSrc,
+          price: parseFloat(p.price) || 0,
+        };
+      });
+
+      setProducts(mapped);
+    } catch (error) {
+      console.error("Failed to load products:", error);
+    } finally {
+      setIsLoading(false);
     }
-    loadData();
-  }, []);
+  }
+  loadData();
+}, []);
 
   const photoGrid = [
     { src: "/img/build/pics/easter/easter1.png", title: "Happy Easter" },
@@ -67,6 +59,7 @@ export default function Home() {
     { src: "/img/build/pics/prod_mugs/p-mug-4.png", title: "Funny mug" },
     { src: "/img/build/pics/misc/tissue-1.png", title: "Tissue" },
   ];
+
 
   return (
     <div className="flex flex-col">

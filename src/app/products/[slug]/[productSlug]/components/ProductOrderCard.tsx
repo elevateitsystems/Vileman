@@ -14,6 +14,7 @@ interface ProductOrderCardProps {
 }
 
 export function ProductOrderCard({ product }: ProductOrderCardProps) {
+  
   const router = useRouter();
   const { addItem, setSingleOrderProduct } = useCartStore();
   const [isAdded, setIsAdded] = useState(false);
@@ -26,8 +27,13 @@ export function ProductOrderCard({ product }: ProductOrderCardProps) {
     const cartProduct = {
       ...product,
       price: price,
-      image: product.images?.[0] || metadata.image || product.image || placeholderImg,
-      shortDescription: metadata.shortDescription || product.shortDescription
+      image:
+        product.images?.[0]?.url ||
+        product.images?.[0] ||
+        metadata.image ||
+        product.image ||
+        (placeholderImg as any).src ||
+        "",
     };
     addItem(cartProduct, 1);
     setIsAdded(true);
@@ -38,8 +44,14 @@ export function ProductOrderCard({ product }: ProductOrderCardProps) {
     const cartProduct = {
       ...product,
       price: price,
-      image: product.images?.[0] || metadata.image || product.image || placeholderImg,
-      shortDescription: metadata.shortDescription || product.shortDescription
+      image:
+        product.images?.[0]?.url ||
+        product.images?.[0] ||
+        metadata.image ||
+        product.image ||
+        (placeholderImg as any).src ||
+        "",
+      shortDescription: metadata.shortDescription || product.shortDescription,
     };
     setSingleOrderProduct(cartProduct);
     router.push("/checkout");
@@ -66,19 +78,27 @@ export function ProductOrderCard({ product }: ProductOrderCardProps) {
           label="DIMENSIONS"
           value={metadata.dimensions || product.dimensions}
         />
-        <ProductInfo icon={<Printer />} label="PRINT" value={metadata.print || product.print} />
-        <ProductInfo icon={<FileText />} label="PAPER" value={metadata.paper || product.paper} />
+        <ProductInfo
+          icon={<Printer />}
+          label="PRINT"
+          value={metadata.print || product.print}
+        />
+        <ProductInfo
+          icon={<FileText />}
+          label="PAPER"
+          value={metadata.paper || product.paper}
+        />
         {(metadata.delivery || product.delivery) && (
-          <ProductInfo 
-            icon={<Truck />} 
-            label="DELIVERY" 
-            value={metadata.delivery || product.delivery} 
+          <ProductInfo
+            icon={<Truck />}
+            label="DELIVERY"
+            value={metadata.delivery || product.delivery}
           />
         )}
       </div>
 
       <div className="mt-14 flex flex-col gap-4">
-        <button 
+        <button
           onClick={handleOrder}
           className="h-14 w-full rounded-lg bg-[#2e4857] text-[16px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-black"
         >

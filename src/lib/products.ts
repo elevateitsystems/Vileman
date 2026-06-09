@@ -15,7 +15,8 @@ export interface Product {
   category: string; // Explicit relation with category slug
   color?: string;
   quantity?: number;
-  status?: 'active' | 'inactive';
+  status?: "active" | "inactive";
+  isCustomizable: boolean;
 }
 
 export interface SubCategory {
@@ -98,7 +99,8 @@ export const categories: Category[] = [
         name: "Kitchen Cloths Christmas",
         slug: "cloth-christmas",
         image: clothReady[2],
-        description: "Holiday themed kitchen cloths for your Christmas kitchen.",
+        description:
+          "Holiday themed kitchen cloths for your Christmas kitchen.",
         price: 20.99,
         delivery: "5-9 days",
       },
@@ -128,6 +130,7 @@ export const categories: Category[] = [
       category: "cloth-everyday",
       color: "Standard",
       quantity: 100,
+      isCustomizable: true,
     })),
   },
   {
@@ -154,6 +157,7 @@ export const categories: Category[] = [
       category: "cloth-easter",
       color: "Easter Print",
       quantity: 50,
+      isCustomizable: true,
     })),
   },
   {
@@ -181,6 +185,7 @@ export const categories: Category[] = [
       category: "cloth-christmas",
       color: "Christmas Red",
       quantity: 50,
+      isCustomizable: false,
     })),
   },
   {
@@ -213,6 +218,7 @@ export const categories: Category[] = [
         category: "mugs",
         color: "White",
         quantity: 50,
+        isCustomizable: true,
       },
       {
         slug: "funny-deer-mug",
@@ -229,6 +235,7 @@ export const categories: Category[] = [
         category: "mugs",
         color: "Custom Print",
         quantity: 30,
+        isCustomizable: false,
       },
     ],
   },
@@ -261,6 +268,7 @@ export const categories: Category[] = [
         category: "shirts",
         color: "Black",
         quantity: 40,
+        isCustomizable: true,
       },
       {
         slug: "premium-v-neck",
@@ -277,6 +285,7 @@ export const categories: Category[] = [
         category: "shirts",
         color: "Grey",
         quantity: 25,
+        isCustomizable: false,
       },
     ],
   },
@@ -308,6 +317,7 @@ export const categories: Category[] = [
         category: "other",
         color: "Floral",
         quantity: 100,
+        isCustomizable: false,
       },
     ],
   },

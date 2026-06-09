@@ -19,10 +19,13 @@ export function ProductGrid({
         {items.map((item) => {
           const { text, metadata } = parseMetadata(item.description || "");
           const images = item.images || [];
-          const imageSrc = images.length > 0 
-            ? (typeof images[0] === 'string' ? images[0] : images[0].url)
-            : (metadata.image || item.image || placeholderImg);
-          
+          const imageSrc =
+            images.length > 0
+              ? typeof images[0] === "string"
+                ? images[0]
+                : images[0].url
+              : metadata.image || item.image || placeholderImg;
+
           return (
             <ProductBox
               key={item.id || item.slug}
@@ -39,13 +42,16 @@ export function ProductGrid({
               name={item.name}
               price={parseFloat(item.price) || 0}
               description={text || item.description}
-              shortDescription={metadata.shortDescription || item.shortDescription}
+              shortDescription={
+                metadata.shortDescription || item.shortDescription
+              }
               color={item.color || metadata.color}
               layout="horizontal"
               dimensions={metadata.dimensions}
               print={metadata.print}
               paper={metadata.paper}
               slug={item.slug}
+              isCustomizable={item.isCustomizable ?? false}
             />
           );
         })}

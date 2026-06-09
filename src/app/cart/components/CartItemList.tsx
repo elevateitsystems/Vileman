@@ -69,18 +69,18 @@ export function CartItemList({
                     <div className="flex h-11 w-32 items-center justify-between rounded-lg bg-gray-50 px-4 border border-gray-100">
                       <button
                         onClick={() =>
-                          updateQuantity(item.slug, item.cartQuantity - 1)
+                          updateQuantity(item.slug, item.quantity - 1)
                         }
                         className="text-gray-400 hover:text-black transition-colors"
                       >
                         <Minus size={16} />
                       </button>
                       <span className="text-[16px] font-bold text-black">
-                        {item.cartQuantity}
+                        {item.quantity}
                       </span>
                       <button
                         onClick={() =>
-                          updateQuantity(item.slug, item.cartQuantity + 1)
+                          updateQuantity(item.slug, item.quantity + 1)
                         }
                         className="text-gray-400 hover:text-black transition-colors"
                       >
@@ -94,7 +94,7 @@ export function CartItemList({
                 </td>
                 <td className="p-8 text-right">
                   <div className="text-[20px] font-bold text-black">
-                    {(item.price * item.cartQuantity).toFixed(2)}{" "}
+                    {(item.price * item.quantity).toFixed(2)}{" "}
                     <span className="text-[14px] font-normal text-gray-400">
                       EUR
                     </span>
