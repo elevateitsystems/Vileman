@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
-import { fetchCategories, fetchSubCategories, fetchProducts } from "@/lib/api";
-import { notFound } from "next/navigation";
 import { SectionHero } from "@/component/product/SectionHero";
-import { ProductGrid } from "./components/ProductGrid";
-import { EmptyCategory } from "./components/EmptyCategory";
-import { parseMetadata } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fetchCategories, fetchProducts, fetchSubCategories } from "@/lib/api";
+import { parseMetadata } from "@/lib/utils";
+import { notFound } from "next/navigation";
+import { use, useEffect, useState } from "react";
+import { EmptyCategory } from "./components/EmptyCategory";
+import { ProductGrid } from "./components/ProductGrid";
 
 export default function CategoryPage({
   params: paramsPromise,

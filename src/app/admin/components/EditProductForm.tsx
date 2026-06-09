@@ -1,3 +1,4 @@
+//components/EditProductForm.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -490,7 +491,7 @@ function ExistingImagePreview({
   removeExistingImage,
 }: any) {
   const [src, setSrc] = useState(img.url || "/assets/placeholder.svg");
-
+  console.log({ src }, { url:img.url });
   return (
     <div className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
       <Image
@@ -499,7 +500,7 @@ function ExistingImagePreview({
         className="w-full h-full object-contain"
         width={200}
         height={200}
-        unoptimized={src.startsWith("http")}
+        // unoptimized={src.startsWith("http")}
         onError={() => setSrc("/assets/placeholder.svg")}
       />
       <button
