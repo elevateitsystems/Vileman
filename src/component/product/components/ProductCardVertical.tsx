@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Product } from "@/lib/products";
 import { ProductCardActions } from "./ProductCardActions";
 import placeholderImg from "@/assets/placeholder.svg";
+import { parseMetadata } from "@/lib/utils";
 
 interface ProductCardVerticalProps {
   product: Product;
@@ -20,7 +21,8 @@ export function ProductCardVertical({
   priority = false,
 }: ProductCardVerticalProps) {
   const [imgSrc, setImgSrc] = useState(product.image || placeholderImg);
-
+  const { text } = parseMetadata(product.description || "");
+  
   return (
     <div className="fancy-box-classes group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-[0_30px_50px_rgba(0,0,0,0.05)] transition-shadow duration-[450ms] ease-[cubic-bezier(0.32,0.98,0.37,1)] hover:shadow-[0_30px_50px_rgba(0,0,0,0.07)]">
       <Link href={href} className="block">
@@ -46,7 +48,8 @@ export function ProductCardVertical({
             </div>
           </div>
           <p className="text-[18px] md:text-[20px] text-brand-secondary font-light leading-[1.5em] group-hover:text-gray-500 line-clamp-2">
-            {product.shortDescription || product.description}
+            {/* {product?.description || product.description} */}
+            {text}
           </p>
         </div>
       </Link>

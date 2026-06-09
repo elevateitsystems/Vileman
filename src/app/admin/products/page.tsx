@@ -208,7 +208,7 @@ export default function ProductsPage() {
                     <TableCell>{product.quantity || 0}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        {/* <Link href={`/admin/products/${product.slug}/edit/${product.id}`}>
+                        <Link href={`/admin/products/${product.slug}/edit/${product.id}`}>
                           <Button 
                             variant="outline" 
                             size="sm"
@@ -216,7 +216,7 @@ export default function ProductsPage() {
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
-                        </Link> */}
+                        </Link>
                         <Button 
                           variant="outline" 
                           size="sm"

@@ -1,3 +1,4 @@
+// products/page.tsx
 "use client";
 
 import { use, useState, useEffect } from "react";
@@ -60,6 +61,8 @@ export default function EditProductPage({
           subCategoryId: prodData.subCategoryId || "",
           price: parseFloat(prodData.price),
           isCustomizable: prodData.isCustomizable ?? false,
+          // Explicitly resolve primary image here, don't leave it to the form
+          image: prodData.image || prodData.images?.[0]?.url || "",
         };
 
         setProduct(formInitialData);
@@ -72,6 +75,8 @@ export default function EditProductPage({
     };
     loadData();
   }, [resolvedParams.id]);
+
+  console.log({ product });
 
   const handleUpdateProduct = async (data: any) => {
     if (!token || !product) return;
