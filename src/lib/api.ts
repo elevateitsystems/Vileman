@@ -1,10 +1,8 @@
-import Cookies from 'js-cookie';
-
+// lib/api.ts
 const BACKEND_URL =
   typeof window !== "undefined"
     ? "/api/proxy"
-    : process.env.BACKEND_URL ||
-      "https://vileman-backend.onrender.com/api";
+    : process.env.BACKEND_URL || "https://vileman-backend.onrender.com/api";
 
 export async function login(credentials: any) {
   const url = `${BACKEND_URL}/auth/login`;
@@ -23,7 +21,10 @@ export async function register(userData: any) {
   const url = `${BACKEND_URL}/auth/register`;
   const res = await fetch(url, {
     method: "POST",
-    headers: userData instanceof FormData ? undefined : { "Content-Type": "application/json" },
+    headers:
+      userData instanceof FormData
+        ? undefined
+        : { "Content-Type": "application/json" },
     body: userData instanceof FormData ? userData : JSON.stringify(userData),
   });
 
@@ -75,16 +76,19 @@ export async function fetchUsers(token: string) {
   return json.data;
 }
 
-export async function fetchAdmins(token: string, params: { search?: string, page?: number, limit?: number } = {}) {
+export async function fetchAdmins(
+  token: string,
+  params: { search?: string; page?: number; limit?: number } = {},
+) {
   const { search, page = 1, limit = 10 } = params;
   const searchParams = new URLSearchParams({
-    role: 'admin',
+    role: "admin",
     page: page.toString(),
     limit: limit.toString(),
   });
-  
+
   if (search) {
-    searchParams.set('search', search);
+    searchParams.set("search", search);
   }
 
   const url = `${BACKEND_URL}/users?${searchParams.toString()}`;
@@ -171,14 +175,18 @@ export async function resetPassword(email: string, newPassword: string) {
   return json;
 }
 
-
-export async function changePassword(token: string, currentPassword: string, newPassword: string, confirmNewPassword: string) {
+export async function changePassword(
+  token: string,
+  currentPassword: string,
+  newPassword: string,
+  confirmNewPassword: string,
+) {
   const url = `${BACKEND_URL}/auth/change-password`;
   const res = await fetch(url, {
     method: "POST",
-    headers: { 
+    headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ currentPassword, newPassword, confirmNewPassword }),
   });
@@ -188,7 +196,8 @@ export async function changePassword(token: string, currentPassword: string, new
   return json;
 }
 
-// Category Operations
+// ==================== CATEGORY OPERATIONS ====================
+
 export async function fetchCategories() {
   const url = `${BACKEND_URL}/categories`;
   const res = await fetch(url);
@@ -197,42 +206,43 @@ export async function fetchCategories() {
   return (json.data || []).filter((cat: any) => !cat.isDeleted);
 }
 
-export async function fetchCategoryById(id: string) {
-  const url = `${BACKEND_URL}/categories/${id}`;
-  const res = await fetch(url);
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to fetch category");
-  return json.data;
-}
-
-export async function createCategory(token: string, data: { name: string; description: string }) {
+export async function createCategory(token: string, data: any) {
   const url = `${BACKEND_URL}/categories`;
+
+  const isFormData = data instanceof FormData;
+
   const res = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data),
+    body: isFormData ? data : JSON.stringify(data),
   });
   const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to create category");
-  return json.data;
+  if (!res.ok) throw json;
+  return json;
 }
 
-export async function updateCategory(token: string, id: string, data: Partial<{ name: string; description: string }>) {
+export async function updateCategory(token: string, id: string, data: any) {
   const url = `${BACKEND_URL}/categories/${id}`;
+
+  const isFormData = data instanceof FormData;
+
+  console.log("updateCategory called - isFormData:", isFormData);
+
   const res = await fetch(url, {
     method: "PATCH",
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data),
+    body: isFormData ? data : JSON.stringify(data),
   });
+
   const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to update category");
-  return json.data;
+  if (!res.ok) throw json;
+  return json;
 }
 
 export async function deleteCategory(token: string, id: string) {
@@ -250,6 +260,49 @@ export async function deleteCategory(token: string, id: string) {
   return json.data;
 }
 
+// ==================== SUB-CATEGORY OPERATIONS ====================
+
+export async function fetchSubCategories() {
+  const url = `${BACKEND_URL}/sub-categories`;
+  const res = await fetch(url);
+  const json = await res.json();
+  if (!res.ok)
+    throw new Error(json.message || "Failed to fetch sub-categories");
+  return (json.data || []).filter((sub: any) => !sub.isDeleted);
+}
+
+export async function createSubCategory(token: string, data: any) {
+  const url = `${BACKEND_URL}/sub-categories`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) throw json;
+  return json;
+}
+
+export async function updateSubCategory(token: string, id: string, data: any) {
+  const url = `${BACKEND_URL}/sub-categories/${id}`;
+
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) throw json;
+  return json;
+}
+
 export async function deleteSubCategory(token: string, id: string) {
   const url = `${BACKEND_URL}/sub-categories/${id}`;
   const res = await fetch(url, {
@@ -262,30 +315,6 @@ export async function deleteSubCategory(token: string, id: string) {
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || "Failed to delete sub-category");
-  return json.data;
-}
-
-// Sub-Category Operations
-export async function fetchSubCategories() {
-  const url = `${BACKEND_URL}/sub-categories`;
-  const res = await fetch(url);
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to fetch sub-categories");
-  return (json.data || []).filter((sub: any) => !sub.isDeleted);
-}
-
-export async function createSubCategory(token: string, data: { name: string; description: string; categoryId: string }) {
-  const url = `${BACKEND_URL}/sub-categories`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to create sub-category");
   return json.data;
 }
 
@@ -316,9 +345,9 @@ export async function fetchProductById(id: string) {
 
 export async function createProduct(token: string, data: any) {
   const url = `${BACKEND_URL}/products`;
-  
+
   const isFormData = data instanceof FormData;
-  
+
   const res = await fetch(url, {
     method: "POST",
     headers: {
@@ -334,9 +363,9 @@ export async function createProduct(token: string, data: any) {
 
 export async function updateProduct(token: string, id: string, data: any) {
   const url = `${BACKEND_URL}/products/${id}`;
-  
+
   const isFormData = data instanceof FormData;
-  
+
   const res = await fetch(url, {
     method: "PATCH",
     headers: {
@@ -387,7 +416,8 @@ export async function createCheckoutSession(data: {
     body: JSON.stringify(data),
   });
   const json = await res.json();
-  if (!res.ok) throw new Error(json.message || "Failed to create checkout session");
+  if (!res.ok)
+    throw new Error(json.message || "Failed to create checkout session");
   return json.data;
 }
 
@@ -401,14 +431,17 @@ export async function uploadImage(file: File) {
     method: "POST",
     body: formData,
   });
-  
+
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || "Failed to upload image");
   // Assuming the backend returns the image object with url and publicId in json.data
   return json.data;
 }
 
-export async function fetchOrders(token: string, params: { page?: number; limit?: number } = {}) {
+export async function fetchOrders(
+  token: string,
+  params: { page?: number; limit?: number } = {},
+) {
   const { page = 1, limit = 10 } = params;
   const searchParams = new URLSearchParams({
     page: page.toString(),
