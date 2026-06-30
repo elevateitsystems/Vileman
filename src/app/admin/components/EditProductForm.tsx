@@ -495,7 +495,8 @@ function ExistingImagePreview({
   return (
     <div className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
       <Image
-        src={src}
+      src={`/api/image?url=${encodeURIComponent(src)}`}
+        // src={src}
         alt={`Product ${index}`}
         className="w-full h-full object-contain"
         width={200}

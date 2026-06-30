@@ -28,7 +28,8 @@ export function ProductCardVertical({
       <Link href={href} className="block">
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
-            src={imgSrc}
+            // src={imgSrc}
+            src={`/api/image?url=${encodeURIComponent(imgSrc)}`}
             alt={product.name}
             width={600}
             height={800}

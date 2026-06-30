@@ -219,6 +219,7 @@ export async function createCategory(token: string, data: any) {
     },
     body: isFormData ? data : JSON.stringify(data),
   });
+  
   const json = await res.json();
   if (!res.ok) throw json;
   return json;
