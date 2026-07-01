@@ -164,7 +164,7 @@ export function EditProductForm({
     
     formData.append("quantity", String(data.quantity || 0));
     formData.append("isCustomizable", String(data.isCustomizable ?? false));
-
+    
     // Create description JSON
     const descriptionJson = JSON.stringify({
       text: data.description,

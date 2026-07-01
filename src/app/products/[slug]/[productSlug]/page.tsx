@@ -56,13 +56,38 @@ export default function ProductDetailPage({
           return;
         }
 
-        setProduct(foundProduct);
+        // Process product images to use the API endpoint
+        const processedProduct = {
+          ...foundProduct,
+          images: foundProduct.images?.map((img: any) => {
+            const imageUrl = typeof img === 'string' ? img : img.url;
+            return `/api/image?url=${encodeURIComponent(imageUrl)}`;
+          }) || [],
+          image: foundProduct.image 
+            ? `/api/image?url=${encodeURIComponent(foundProduct.image)}` 
+            : null
+        };
+
+        setProduct(processedProduct);
 
         // Fetch other products in same category/sub-category for the gallery
         const filteredProducts = allProducts.filter((p: any) => 
           foundCategory ? p.categoryId === foundCategory.id : p.subCategoryId === foundSubCategory.id
         );
-        setCategoryProducts(filteredProducts);
+        
+        // Process gallery products images as well
+        const processedGalleryProducts = filteredProducts.map((p: any) => ({
+          ...p,
+          images: p.images?.map((img: any) => {
+            const imageUrl = typeof img === 'string' ? img : img.url;
+            return `/api/image?url=${encodeURIComponent(imageUrl)}`;
+          }) || [],
+          image: p.image 
+            ? `/api/image?url=${encodeURIComponent(p.image)}` 
+            : null
+        }));
+        
+        setCategoryProducts(processedGalleryProducts);
 
       } catch (error) {
         console.error("Failed to load product detail:", error);
@@ -107,7 +132,7 @@ export default function ProductDetailPage({
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
           <ProductGallery 
             images={product.images && product.images.length > 0 
-              ? product.images.map((img: any) => typeof img === 'string' ? img : img.url) 
+              ? product.images 
               : [product.image || placeholderImg]} 
             name={product.name} 
           />

@@ -22,14 +22,17 @@ export function ProductCardVertical({
 }: ProductCardVerticalProps) {
   const [imgSrc, setImgSrc] = useState(product.image || placeholderImg);
   const { text } = parseMetadata(product.description || "");
-  
+
   return (
     <div className="fancy-box-classes group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-[0_30px_50px_rgba(0,0,0,0.05)] transition-shadow duration-[450ms] ease-[cubic-bezier(0.32,0.98,0.37,1)] hover:shadow-[0_30px_50px_rgba(0,0,0,0.07)]">
       <Link href={href} className="block">
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
-            // src={imgSrc}
-            src={`/api/image?url=${encodeURIComponent(imgSrc)}`}
+            src={
+              imgSrc === placeholderImg
+                ? placeholderImg
+                : `/api/image?url=${encodeURIComponent(imgSrc)}`
+            }
             alt={product.name}
             width={600}
             height={800}
