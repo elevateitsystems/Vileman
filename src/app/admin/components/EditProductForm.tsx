@@ -1,4 +1,4 @@
-//components/EditProductForm.tsx
+// components/EditProductForm.tsx
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,7 @@ type ProductFormValues = z.infer<typeof productSchema>;
 interface EditProductFormProps {
   categories: any[];
   initialData: any;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: FormData) => void;
   isSubmitting?: boolean;
 }
 
@@ -61,7 +61,6 @@ export function EditProductForm({
   onSubmit,
   isSubmitting,
 }: EditProductFormProps) {
-  // We keep track of existing images and newly added files separately
   const [existingImages, setExistingImages] = useState<any[]>(
     initialData?.images || [],
   );
@@ -82,13 +81,10 @@ export function EditProductForm({
     },
   });
 
-  // Synchronize state when initialData changes
   useEffect(() => {
     if (initialData) {
       const initialImages = initialData.images || [];
       setExistingImages(initialImages);
-
-      // Map primary image: either top-level image field or the first image from the array
       const initialPrimary = initialData.image || initialImages[0]?.url || "";
       setPrimaryImage(initialPrimary);
 
@@ -125,7 +121,6 @@ export function EditProductForm({
     setDeletedImageIds((prev) => [...prev, id]);
     setExistingImages((prev) => prev.filter((_, i) => i !== index));
 
-    // If the removed image was primary, pick the next available one
     if (primaryImage === imgToRemove.url) {
       const nextExisting = existingImages.find((_, i) => i !== index);
       if (nextExisting) {
@@ -155,12 +150,52 @@ export function EditProductForm({
   };
 
   const onFormSubmit = (data: ProductFormValues) => {
-    onSubmit({
-      ...data,
-      image: primaryImage,
-      fileObjects: newFiles,
-      deleteimageIds: deletedImageIds,
+    const formData = new FormData();
+    
+    // Append all text fields
+    formData.append("name", data.name);
+    formData.append("slug", data.slug);
+    formData.append("price", String(data.price));
+    formData.append("categoryId", data.categoryId);
+    
+    if (data.subCategoryId) {
+      formData.append("subCategoryId", data.subCategoryId);
+    }
+    
+    formData.append("quantity", String(data.quantity || 0));
+    formData.append("isCustomizable", String(data.isCustomizable ?? false));
+
+    // Create description JSON
+    const descriptionJson = JSON.stringify({
+      text: data.description,
+      shortDescription: data.shortDescription,
+      dimensions: data.dimensions,
+      print: data.print,
+      paper: data.paper,
     });
+    formData.append("description", descriptionJson);
+
+    // Append new files
+    newFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    // ✅ FIX: Send deleteImageIds as a JSON string array
+    if (deletedImageIds.length > 0) {
+      formData.append("deleteImageIds", JSON.stringify(deletedImageIds));
+    }
+
+    // Debug logging
+    console.log("📦 FormData being submitted:");
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    onSubmit(formData);
+  };
+
+  const isBlobOrDataUrl = (url: string) => {
+    return url?.startsWith('blob:') || url?.startsWith('data:');
   };
 
   return (
@@ -302,41 +337,45 @@ export function EditProductForm({
               ))}
 
               {/* New Previews */}
-              {newPreviews.map((src, index) => (
-                <div
-                  key={`new-${index}`}
-                  className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group"
-                >
-                  <Image
-                    src={src}
-                    alt={`New Preview ${index}`}
-                    className="w-full h-full object-contain"
-                    width={200}
-                    height={200}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeNewImage(index)}
-                    className="absolute top-1 right-1 p-1 bg-white/80 backdrop-blur-sm rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+              {newPreviews.map((src, index) => {
+                const isBlob = isBlobOrDataUrl(src);
+                return (
+                  <div
+                    key={`new-${index}`}
+                    className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group"
                   >
-                    <X className="h-4 w-4 text-red-500" />
-                  </button>
-                  {primaryImage === src && (
-                    <div className="absolute bottom-0 inset-x-0 bg-brand-primary text-white text-[10px] py-0.5 text-center font-bold">
-                      PRIMARY
-                    </div>
-                  )}
-                  {primaryImage !== src && (
+                    <Image
+                      src={src}
+                      alt={`New Preview ${index}`}
+                      className="w-full h-full object-contain"
+                      width={200}
+                      height={200}
+                      unoptimized={isBlob}
+                    />
                     <button
                       type="button"
-                      onClick={() => setPrimaryImage(src)}
-                      className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity"
+                      onClick={() => removeNewImage(index)}
+                      className="absolute top-1 right-1 p-1 bg-white/80 backdrop-blur-sm rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      SET PRIMARY
+                      <X className="h-4 w-4 text-red-500" />
                     </button>
-                  )}
-                </div>
-              ))}
+                    {primaryImage === src && (
+                      <div className="absolute bottom-0 inset-x-0 bg-brand-primary text-white text-[10px] py-0.5 text-center font-bold">
+                        PRIMARY
+                      </div>
+                    )}
+                    {primaryImage !== src && (
+                      <button
+                        type="button"
+                        onClick={() => setPrimaryImage(src)}
+                        className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity"
+                      >
+                        SET PRIMARY
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
 
               <button
                 type="button"
@@ -491,17 +530,17 @@ function ExistingImagePreview({
   removeExistingImage,
 }: any) {
   const [src, setSrc] = useState(img.url || "/assets/placeholder.svg");
-  console.log({ src }, { url:img.url });
+  const isBlobOrDataUrl = src?.startsWith('blob:') || src?.startsWith('data:');
+  
   return (
     <div className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-gray-50 group">
       <Image
-      src={`/api/image?url=${encodeURIComponent(src)}`}
-        // src={src}
+        src={isBlobOrDataUrl ? src : `/api/image?url=${encodeURIComponent(src)}`}
         alt={`Product ${index}`}
         className="w-full h-full object-contain"
         width={200}
         height={200}
-        // unoptimized={src.startsWith("http")}
+        unoptimized={isBlobOrDataUrl}
         onError={() => setSrc("/assets/placeholder.svg")}
       />
       <button

@@ -1,8 +1,8 @@
-// products/page.tsx
+// app/admin/products/[slug]/edit/[id]/page.tsx
 "use client";
 
 import { use, useState, useEffect } from "react";
-import { EditProductForm } from "../../../../components/EditProductForm";
+// import { EditProductForm } from "@/components/EditProductForm";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { parseMetadata } from "@/lib/utils";
 import { toast } from "react-toastify";
+import { EditProductForm } from "@/app/admin/components/EditProductForm";
 
 export default function EditProductPage({
   params,
@@ -61,7 +62,6 @@ export default function EditProductPage({
           subCategoryId: prodData.subCategoryId || "",
           price: parseFloat(prodData.price),
           isCustomizable: prodData.isCustomizable ?? false,
-          // Explicitly resolve primary image here, don't leave it to the form
           image: prodData.image || prodData.images?.[0]?.url || "",
         };
 
@@ -69,6 +69,7 @@ export default function EditProductPage({
         setCategories(nested);
       } catch (error) {
         console.error("Failed to load product edit data:", error);
+        toast.error("Failed to load product data");
       } finally {
         setIsLoading(false);
       }
@@ -76,45 +77,23 @@ export default function EditProductPage({
     loadData();
   }, [resolvedParams.id]);
 
-  console.log({ product });
-
-  const handleUpdateProduct = async (data: any) => {
-    if (!token || !product) return;
+  const handleUpdateProduct = async (formData: FormData) => {
+    if (!token || !product) {
+      toast.error("Authentication required");
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("slug", data.slug);
-      formData.append("price", data.price.toString());
-      formData.append("categoryId", data.categoryId);
-      if (data.subCategoryId) {
-        formData.append("subCategoryId", data.subCategoryId);
-      }
-      formData.append("quantity", (data.quantity || 0).toString());
-      formData.append("isCustomizable", String(data.isCustomizable ?? false));
-
-      const descriptionJson = JSON.stringify({
-        text: data.description,
-        shortDescription: data.shortDescription,
-        dimensions: data.dimensions,
-        print: data.print,
-        paper: data.paper,
-      });
-      formData.append("description", descriptionJson);
-
-      // Append new files if any
-      if (data.fileObjects && data.fileObjects.length > 0) {
-        data.fileObjects.forEach((file: File) => {
-          formData.append("images", file);
-        });
+      // Debug: Log all FormData entries
+      console.log("📦 Submitting FormData:");
+      for (const pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
       }
 
-      // Append deleted image IDs if any
-      if (data.deleteimageIds && data.deleteimageIds.length > 0) {
-        formData.append("deleteimageIds", JSON.stringify(data.deleteimageIds));
-      }
-
+      // Send FormData directly to API
       const response = await updateProduct(token, product.id, formData);
+      
       if (response.success === false) {
         const errorMessage =
           response.error?.details?.issues?.[0]?.message ||
@@ -126,6 +105,7 @@ export default function EditProductPage({
 
       toast.success("Product updated successfully!");
       router.push("/admin/products");
+      router.refresh();
     } catch (err: any) {
       console.error("Error updating product:", err);
       const errorMessage =

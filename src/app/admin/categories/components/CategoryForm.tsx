@@ -36,7 +36,6 @@ export default function CategoryForm({
     }
   };
 
-  // ✅ FIX: Added async keyword
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -75,6 +74,11 @@ export default function CategoryForm({
     }
   };
 
+  // Helper function to determine if the preview is a blob URL (new image)
+  const isBlobUrl = (url: string | null) => {
+    return url?.startsWith('blob:') || false;
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
@@ -101,7 +105,13 @@ export default function CategoryForm({
         <Label>Image</Label>
         {preview && (
           <div className="mb-3 relative w-32 h-32 rounded-lg overflow-hidden border">
-            <Image src={`/api/image?url=${encodeURIComponent(preview)}`} alt="Preview" fill className="object-cover" />
+            <Image 
+              src={isBlobUrl(preview) ? preview : `/api/image?url=${encodeURIComponent(preview)}`}
+              alt="Preview" 
+              fill 
+              className="object-cover"
+              unoptimized={isBlobUrl(preview)}
+            />
           </div>
         )}
         <Input 
