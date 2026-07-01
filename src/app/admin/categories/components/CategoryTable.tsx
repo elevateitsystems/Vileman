@@ -37,7 +37,7 @@ export default function CategoryTable({ data, onEdit, onDelete }: CategoryTableP
               <TableCell>
                 {item.image?.url ? (
                   <div className="relative w-12 h-12 rounded-md overflow-hidden border">
-                    <Image src={item.image.url} alt={item.name} fill className="object-cover" />
+                    <Image src={`/api/image?url=${encodeURIComponent(item.image.url)}`} alt={item.name} fill className="object-cover" />
                   </div>
                 ) : (
                   <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">

@@ -21,7 +21,8 @@ export function ProductCardHorizontal({ product, href, priority = false }: Produ
     <div className="group relative flex flex-col overflow-hidden sm:flex-row gap-12 rounded-lg bg-white transition-all">
       <Link href={href} className="relative overflow-hidden md:flex-1 rounded-lg">
         <Image
-          src={imgSrc}
+          // src={imgSrc}
+          src={`/api/image?url=${encodeURIComponent(imgSrc)}`}
           alt={product.name}
           width={600}
           height={800}

@@ -32,27 +32,27 @@ export default function CategoryList() {
 
     console.log("handleSubmit received data:", data); // ← Debug
 
-    // setIsSubmitting(true);
-    // try {
-    //   if (editingItem) {
-    //     console.log({ editingItem }, { data });
-    //     await updateCategory(token, editingItem.id, data);
-    //     toast.success("Category updated successfully!");
-    //   } else {
-    //     await createCategory(token, data);
-    //     toast.success("Category created successfully!");
-    //   }
-    //   setIsModalOpen(false);
-    //   setEditingItem(null);
-    //   await refresh();
-    // } catch (err: any) {
-    //   console.error("Full error:", err);
-    //   toast.error(
-    //     err.message || err.error?.message || "Failed to save category",
-    //   );
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
+    setIsSubmitting(true);
+    try {
+      if (editingItem) {
+        console.log({ editingItem }, { data });
+        await updateCategory(token, editingItem.id, data);
+        toast.success("Category updated successfully!");
+      } else {
+        await createCategory(token, data);
+        toast.success("Category created successfully!");
+      }
+      setIsModalOpen(false);
+      setEditingItem(null);
+      await refresh();
+    } catch (err: any) {
+      console.error("Full error:", err);
+      toast.error(
+        err.message || err.error?.message || "Failed to save category",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = async (id: string) => {

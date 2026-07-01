@@ -180,7 +180,8 @@ export default function ProductsPage() {
                     <TableCell>
                       <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
                         <Image
-                          src={displayImage || "/assets/placeholder.svg"}
+                        src={`/api/image?url=${encodeURIComponent(displayImage)}`}
+                          // src={displayImage || "/assets/placeholder.svg"}
                           alt={product.name}
                           className="w-full h-full object-cover"
                           width={100}

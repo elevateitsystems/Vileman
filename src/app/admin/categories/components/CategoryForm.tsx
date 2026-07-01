@@ -19,7 +19,6 @@ export default function CategoryForm({
   isLoading = false,
 }: CategoryFormProps) {
   const [name, setName] = useState(initialData?.name || "");
-  console.log({ initialData });
   const [description, setDescription] = useState(
     initialData?.description || "",
   );
@@ -27,6 +26,7 @@ export default function CategoryForm({
   const [preview, setPreview] = useState<string | null>(
     initialData?.image?.url || null,
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -36,11 +36,10 @@ export default function CategoryForm({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const formData = new FormData();
-
     formData.append("name", name.trim());
     formData.append("description", (description || "").trim());
 
@@ -48,10 +47,36 @@ export default function CategoryForm({
       formData.append("image", image);
     }
 
-    // Strong debug
-    // console.log("FormData keys:", Array.from(formData.keys()));
-    console.log({ formData });
-    onSubmit(formData);
+    // Debug log
+    console.log("📦 FormData being submitted:");
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSubmit(formData);
+      
+      // Reset form after successful submission (if not editing)
+      if (!initialData) {
+        setName("");
+        setDescription("");
+        setImage(null);
+        setPreview(null);
+        // Reset file input
+        const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+      }
+    } catch (error) {
+      console.error("❌ Form submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Helper function to determine if the preview is a blob URL (new image)
+  const isBlobUrl = (url: string | null) => {
+    return url?.startsWith('blob:') || false;
   };
 
   return (
@@ -62,6 +87,7 @@ export default function CategoryForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
+          disabled={isSubmitting || isLoading}
         />
       </div>
 
@@ -71,6 +97,7 @@ export default function CategoryForm({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
+          disabled={isSubmitting || isLoading}
         />
       </div>
 
@@ -78,10 +105,21 @@ export default function CategoryForm({
         <Label>Image</Label>
         {preview && (
           <div className="mb-3 relative w-32 h-32 rounded-lg overflow-hidden border">
-            <Image src={preview} alt="Preview" fill className="object-cover" />
+            <Image 
+              src={isBlobUrl(preview) ? preview : `/api/image?url=${encodeURIComponent(preview)}`}
+              alt="Preview" 
+              fill 
+              className="object-cover"
+              unoptimized={isBlobUrl(preview)}
+            />
           </div>
         )}
-        <Input type="file" accept="image/*" onChange={handleImageChange} />
+        <Input 
+          type="file" 
+          accept="image/*" 
+          onChange={handleImageChange}
+          disabled={isSubmitting || isLoading}
+        />
         {initialData && (
           <p className="text-xs text-gray-500 mt-1">
             Leave empty to keep current image
@@ -89,8 +127,8 @@ export default function CategoryForm({
         )}
       </div>
 
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading
+      <Button type="submit" className="w-full" disabled={isSubmitting || isLoading}>
+        {isSubmitting || isLoading
           ? "Saving..."
           : initialData
             ? "Update Category"
